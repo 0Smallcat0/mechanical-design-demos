@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Warehouse robot: particle-filter localization, A* and pure pursuit · 倉儲機器人定位與路徑規劃</title>
+<style>
+  :root { --bg: #0e1013; --panel: #16191e; --line: #2a2f37; --fg: #eef0f3; --muted: #8b929c; --accent: #ff8a3d; --blue: #4dabf7; --green: #63e6be; --yellow: #ffd43b; --red: #ff6b6b; }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; height: 100%; background: var(--bg); color: var(--fg); font: 14px/1.45 system-ui, -apple-system, "Segoe UI", sans-serif; }
+  #app { display: grid; grid-template-columns: 1fr 380px; height: 100vh; }
+  #stage { position: relative; min-width: 0; display: flex; align-items: center; justify-content: center; padding: 18px; }
+  #map { width: 100%; height: auto; max-height: 100%; aspect-ratio: 24 / 14; display: block; border-radius: 12px; cursor: crosshair; background: #121418; }
+  #caption { position: absolute; left: 40px; top: 34px; pointer-events: none; display: none; }
+  #caption .n { display: inline-block; min-width: 30px; height: 30px; line-height: 30px; text-align: center; border-radius: 999px; background: var(--accent); color: #111; font-weight: 700; margin-right: 12px; }
+  #caption .t { font-size: 26px; font-weight: 650; letter-spacing: -0.01em; }
+  #caption .s { color: var(--muted); font-size: 18px; margin: 6px 0 0 44px; }
+  #caption-box { background: rgba(14,16,19,.82); padding: 14px 20px 14px 14px; border-radius: 14px; border: 1px solid var(--line); }
+  aside { background: var(--panel); border-left: 1px solid var(--line); padding: 18px 20px; overflow-y: auto; display: flex; flex-direction: column; gap: 14px; }
+  h1 { font-size: 17px; margin: 0; line-height: 1.25; }
+  h1 small { display: block; color: var(--muted); font-weight: 400; font-size: 13px; margin-top: 4px; }
+  a { color: var(--accent); }
+  .chip { display: inline-block; padding: 3px 10px; border-radius: 999px; font-weight: 600; font-size: 12px; letter-spacing: .04em; text-transform: uppercase; }
+  .m-localizing { background: #5c3d00; color: var(--yellow); } .m-driving { background: #0b3a5c; color: var(--blue); }
+  .m-idle { background: #12382c; color: var(--green); } .m-blocked { background: #5c1616; color: var(--red); }
+  table { width: 100%; border-collapse: collapse; font-variant-numeric: tabular-nums; }
+  td { padding: 4px 0; border-bottom: 1px solid var(--line); } td:last-child { text-align: right; font-weight: 600; }
+  td:first-child { color: var(--muted); }
+  .sec { color: var(--muted); font-size: 11px; letter-spacing: .08em; text-transform: uppercase; margin: 2px 0 -6px; }
+  #plot { width: 100%; height: 130px; display: block; background: #101215; border-radius: 8px; }
+  .row { display: flex; flex-wrap: wrap; gap: 6px; }
+  button { font: inherit; font-size: 13px; color: var(--fg); background: #222730; border: 1px solid var(--line); border-radius: 8px; padding: 6px 10px; cursor: pointer; }
+  button:hover { border-color: var(--accent); } button.on { background: var(--accent); color: #111; border-color: var(--accent); font-weight: 600; }
+  label { color: var(--muted); font-size: 13px; display: inline-flex; gap: 5px; align-items: center; margin-right: 8px; }
+  #log { font-size: 12px; color: var(--muted); min-height: 90px; } #log div { padding: 2px 0; } #log b { color: var(--fg); font-weight: 500; }
+  .legend { font-size: 12px; color: var(--muted); display: grid; grid-template-columns: 1fr 1fr; gap: 3px 10px; }
+  .legend i { display: inline-block; width: 10px; height: 10px; border-radius: 3px; margin-right: 6px; vertical-align: -1px; }
+  .hint { font-size: 12px; color: var(--muted); }
+  body.film aside .ctl, body.film .hint, body.film #back { display: none; }
+  body.film #caption { display: block; }
+  @media (max-width: 900px) { #app { grid-template-columns: 1fr; height: auto; } aside { border-left: 0; } }
+</style>
+</head>
+<body>
+<div id="app">
+  <div id="stage">
+    <canvas id="map" width="1680" height="980"></canvas>
+    <div id="caption"><div id="caption-box"><span class="n" id="cap-n">1</span><span class="t" id="cap-t"></span><div class="s" id="cap-s"></div></div></div>
+  </div>
+  <aside>
+    <div>
+      <h1>Warehouse robot: localize, plan, follow<small>Particle filter · A* on an inflated grid · pure pursuit · 倉儲機器人定位與路徑規劃</small></h1>
+      <div id="back" style="margin-top:6px;font-size:13px"><a href="./">&larr; Project page</a></div>
+    </div>
+    <div><span class="chip" id="mode">localizing</span> <span class="hint" id="clock"></span></div>
+    <div class="sec">Localization</div>
+    <table>
+      <tr><td>Position error vs ground truth</td><td id="m-err">–</td></tr>
+      <tr><td>Heading error</td><td id="m-herr">–</td></tr>
+      <tr><td>Dead-reckoning error</td><td id="m-dr">–</td></tr>
+      <tr><td>Particles / effective size</td><td id="m-n">–</td></tr>
+      <tr><td>Scan fit at estimate</td><td id="m-fit">–</td></tr>
+      <tr><td>Last convergence time</td><td id="m-conv">–</td></tr>
+    </table>
+    <canvas id="plot" width="680" height="260"></canvas>
+    <div class="sec">Planning</div>
+    <table>
+      <tr><td>A* time / cells expanded</td><td id="m-plan">–</td></tr>
+      <tr><td>Path length</td><td id="m-len">–</td></tr>
+      <tr><td>Speed command</td><td id="m-cmd">–</td></tr>
+    </table>
+    <div class="ctl">
+      <div class="sec" style="margin-bottom:8px">Click on the map to</div>
+      <div class="row"><button id="t-goal" class="on">Set goal</button><button id="t-box">Drop / remove box</button></div>
+    </div>
+    <div class="ctl row">
+      <button id="b-kidnap">Kidnap robot</button><button id="b-reloc">Global relocalize</button><button id="b-pause">Pause</button><button id="b-speed">Speed 1×</button>
+    </div>
+    <div class="ctl">
+      <label><input type="checkbox" id="v-part" checked>particles</label><label><input type="checkbox" id="v-beam" checked>lidar</label><label><input type="checkbox" id="v-infl">inflation</label><label><input type="checkbox" id="v-dr" checked>dead reckoning</label>
+    </div>
+    <div class="legend">
+      <span><i style="background:#fff"></i>true robot</span><span><i style="background:var(--accent)"></i>filter estimate</span>
+      <span><i style="background:var(--yellow)"></i>particles</span><span><i style="background:#7b828c"></i>dead reckoning</span>
+      <span><i style="background:var(--green)"></i>lidar hits</span><span><i style="background:var(--blue)"></i>A* path</span>
+      <span><i style="background:var(--red)"></i>seen, not on map</span><span><i style="background:#c27a3a"></i>dropped box</span>
+    </div>
+    <div class="sec">Events</div>
+    <div id="log"></div>
+    <div class="hint">Everything runs in your browser. The robot only gets wheel odometry and lidar; the white "true robot" and the error numbers are the simulator's ground truth, shown for comparison.</div>
+  </aside>
+</div>
+<script type="module" src="live.js"></script>
+</body>
+</html>

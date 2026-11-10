@@ -26,3 +26,8 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 ```
+
+## Other libraries
+
+- [three.js](https://github.com/mrdoob/three.js) (MIT): `robot-arm-planning/vendor/`, `printable-stand/vendor/`; license files are next to the code.
+- [manifold-3d](https://github.com/elalish/manifold) (Apache-2.0): `printable-stand/vendor/`; license file is next to the code.

@@ -1,0 +1,281 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Inverted pendulum: PID vs LQR vs RL · live</title>
+<style>
+:root { --bg:#0f1012; --panel:#17181b; --line:#2a2b30; --fg:#f2f2f4; --mut:#9a9aa2; --pid:#ff7a2f; --lqr:#4dabf7; --rl:#51cf66; }
+* { box-sizing:border-box; }
+html,body { margin:0; background:var(--bg); color:var(--fg); font:14px/1.4 system-ui,-apple-system,"Segoe UI",sans-serif; }
+#app { display:grid; grid-template-rows:auto auto 1fr; gap:10px; padding:12px 16px; height:100vh; min-height:640px; }
+header { display:flex; align-items:center; gap:14px; flex-wrap:wrap; }
+header h1 { font-size:18px; margin:0 12px 0 0; font-weight:650; }
+header a { color:var(--mut); text-decoration:none; }
+button { background:#24252a; color:var(--fg); border:1px solid #34353b; border-radius:999px; padding:6px 14px; font:inherit; cursor:pointer; }
+button:hover { border-color:#5a5b62; }
+#carts { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; }
+.cart { background:var(--panel); border:1px solid var(--line); border-radius:12px; position:relative; height:250px; cursor:crosshair; }
+.cart canvas { width:100%; height:100%; display:block; }
+#bottom { display:grid; grid-template-columns:1fr 330px; gap:10px; min-height:0; }
+#plots { display:grid; grid-template-rows:repeat(3,1fr); gap:8px; min-height:0; }
+.plot { background:var(--panel); border:1px solid var(--line); border-radius:12px; min-height:90px; }
+.plot canvas { width:100%; height:100%; display:block; }
+#side { background:var(--panel); border:1px solid var(--line); border-radius:12px; padding:12px 14px; overflow:auto; }
+#side h3 { font-size:12px; text-transform:uppercase; letter-spacing:.06em; color:var(--mut); margin:12px 0 6px; font-weight:600; }
+#side h3:first-child { margin-top:0; }
+label.sl { display:grid; grid-template-columns:118px 1fr 46px; align-items:center; gap:8px; margin:4px 0; color:#d0d0d6; }
+label.sl input { width:100%; accent-color:#9a9aa2; }
+label.sl output { text-align:right; font-variant-numeric:tabular-nums; color:var(--mut); }
+table { border-collapse:collapse; width:100%; font-variant-numeric:tabular-nums; font-size:12.5px; }
+th,td { padding:3px 4px; text-align:right; border-bottom:1px solid var(--line); }
+th:first-child,td:first-child { text-align:left; color:var(--mut); font-weight:500; }
+.k-pid{color:var(--pid)} .k-lqr{color:var(--lqr)} .k-rl{color:var(--rl)}
+#check { color:var(--mut); font-size:12px; margin-top:8px; }
+#cap { display:none; }
+body.film #app { padding:28px 40px; gap:16px; grid-template-rows:auto auto 1fr; }
+body.film header .ui, body.film #side { display:none; }
+body.film #bottom { grid-template-columns:1fr; }
+body.film .cart { height:430px; cursor:default; }
+body.film header h1 { font-size:26px; }
+body.film #cap { display:block; font-size:30px; font-weight:600; margin-left:auto; color:#fff; min-height:40px; transition:opacity .2s; }
+#end { display:none; position:fixed; inset:0; background:rgba(15,16,18,.94); align-items:center; justify-content:center; flex-direction:column; gap:18px; }
+#end .big { font-size:46px; font-weight:700; } #end .row { font-size:34px; } #end .mut { color:var(--mut); font-size:22px; }
+</style>
+</head>
+<body>
+<div id="app">
+  <header>
+    <h1>Inverted pendulum · PID vs LQR vs RL</h1>
+    <span class="ui"><button id="bTilt">Tilt 0.2 rad</button> <button id="bSwing">Swing up from hanging</button> <button id="bPush">Push all</button></span>
+    <span class="ui" style="color:var(--mut)">Click a cart panel to push that pole.</span>
+    <a class="ui" href="./" style="margin-left:auto">Project page &rarr;</a>
+    <div id="cap"></div>
+  </header>
+  <div id="carts">
+    <div class="cart" data-k="pid"><canvas></canvas></div>
+    <div class="cart" data-k="lqr"><canvas></canvas></div>
+    <div class="cart" data-k="rl"><canvas></canvas></div>
+  </div>
+  <div id="bottom">
+    <div id="plots">
+      <div class="plot" data-q="th"><canvas></canvas></div>
+      <div class="plot" data-q="x"><canvas></canvas></div>
+      <div class="plot" data-q="F"><canvas></canvas></div>
+    </div>
+    <div id="side">
+      <h3>Plant (controllers are not re-tuned)</h3>
+      <label class="sl">Pole mass ×<input id="sM" type="range" min="0.5" max="3" step="0.05" value="1"><output></output></label>
+      <label class="sl">Pole length ×<input id="sL" type="range" min="0.6" max="1.6" step="0.05" value="1"><output></output></label>
+      <label class="sl">Sensor noise σ (rad)<input id="sN" type="range" min="0" max="0.03" step="0.001" value="0"><output></output></label>
+      <label class="sl">Force limit (N)<input id="sF" type="range" min="5" max="40" step="1" value="15"><output></output></label>
+      <label style="display:flex;gap:8px;align-items:center;color:#d0d0d6"><input id="sSat" type="checkbox" checked> Actuator saturation on</label>
+      <h3>PID gains</h3>
+      <label class="sl">Kp<input id="gP" type="range" min="0" max="150" step="0.5"><output></output></label>
+      <label class="sl">Ki<input id="gI" type="range" min="0" max="60" step="0.5"><output></output></label>
+      <label class="sl">Kd<input id="gD" type="range" min="0" max="30" step="0.1"><output></output></label>
+      <h3>Scoreboard (precomputed in Python)</h3>
+      <table id="score"></table>
+      <div id="check">Checking the browser simulator against Python…</div>
+    </div>
+  </div>
+</div>
+<div id="end"></div>
+<script src="data.js"></script>
+<script src="sim.js"></script>
+<script>
+(function () {
+  const D = window.PEND, S = window.SIM;
+  const KINDS = ['pid', 'lqr', 'rl'];
+  const NAME = { pid: 'PID', lqr: 'LQR', rl: 'RL (CEM policy)' };
+  const COL = { pid: '#ff7a2f', lqr: '#4dabf7', rl: '#51cf66' };
+  const film = /[?&]film=1/.test(location.search);
+  if (film) document.body.classList.add('film');
+  const $ = (id) => document.getElementById(id);
+  const pid = Object.assign({}, D.pid);
+  const plant = { mm: 1, lm: 1, noise: 0, Fmax: 15, sat: true };
+  const P = () => Object.assign({}, D.P, { m: D.P.m * plant.mm, l: D.P.l * plant.lm, Fmax: plant.Fmax });
+  const gains = (k) => (k === 'pid' ? pid : k === 'lqr' ? D.K : D.rl);
+  let loops = {}, hist = {}, seedN = 1;
+  const HIST = 800;
+
+  function reset(th0) {
+    const p = P();
+    for (const k of KINDS) {
+      loops[k] = new S.Loop(k, gains(k), p, [0, 0, th0, 0], { noise: plant.noise, seed: seedN, sat: plant.sat, rails: 'clamp', design: p });
+      hist[k] = { th: [], x: [], F: [] };
+    }
+    seedN++;
+  }
+  function applyPlant() {
+    const p = P();
+    for (const k of KINDS) { const L = loops[k]; L.p = p; L.design = p; L.noise = plant.noise; L.sat = plant.sat; }
+  }
+  function push(k, f) { const L = loops[k]; const t = L.k * S.DT; L.pushes.push([t, 0.1, f]); L.pushFlash = 18 * Math.sign(f); }
+  function stepAll() {
+    for (const k of KINDS) {
+      const L = loops[k]; L.step();
+      const h = hist[k];
+      h.th.push(S.wrap(L.s[2]) * 180 / Math.PI); h.x.push(L.s[0]); h.F.push(L.F);
+      if (h.th.length > HIST) { h.th.shift(); h.x.shift(); h.F.shift(); }
+    }
+  }
+
+  // ---- drawing ----
+  function fit(c) {
+    const r = c.getBoundingClientRect(), d = window.devicePixelRatio || 1;
+    if (c.width !== Math.round(r.width * d) || c.height !== Math.round(r.height * d)) { c.width = Math.round(r.width * d); c.height = Math.round(r.height * d); }
+    const g = c.getContext('2d'); g.setTransform(d, 0, 0, d, 0, 0); return [g, r.width, r.height];
+  }
+  function drawCart(k, el) {
+    const [g, w, h] = fit(el.querySelector('canvas')), L = loops[k], p = L.p;
+    g.clearRect(0, 0, w, h);
+    const sc = Math.min(w / (2 * p.xlim + 0.5), h / 1.25), cx = w / 2, ry = h * 0.72;
+    g.strokeStyle = '#3a3b42'; g.lineWidth = 4; g.lineCap = 'round';
+    g.beginPath(); g.moveTo(cx - p.xlim * sc - 14, ry); g.lineTo(cx + p.xlim * sc + 14, ry); g.stroke();
+    g.fillStyle = '#3a3b42';
+    for (const s of [-1, 1]) g.fillRect(cx + s * (p.xlim * sc + 14) - 3, ry - 14, 6, 28);
+    g.strokeStyle = '#26272c'; g.lineWidth = 1;
+    for (let m = -1; m <= 1; m += 0.5) { const X = cx + m * sc; g.beginPath(); g.moveTo(X, ry + 10); g.lineTo(X, ry + 18); g.stroke(); }
+    const X = cx + L.s[0] * sc, th = L.s[2], cw = 0.26 * sc, ch = 0.11 * sc;
+    // force arrow
+    if (Math.abs(L.F) > 0.3) {
+      const len = (L.F / 15) * 0.35 * sc, yy = ry - ch / 2;
+      g.strokeStyle = COL[k]; g.globalAlpha = 0.85; g.lineWidth = 3;
+      g.beginPath(); g.moveTo(X, yy); g.lineTo(X + len, yy); g.stroke();
+      g.beginPath(); g.moveTo(X + len, yy); g.lineTo(X + len - Math.sign(len) * 8, yy - 6); g.lineTo(X + len - Math.sign(len) * 8, yy + 6); g.fill(); g.globalAlpha = 1;
+    }
+    g.fillStyle = '#2b2c33'; g.strokeStyle = COL[k]; g.lineWidth = 2;
+    roundRect(g, X - cw / 2, ry - ch - 4, cw, ch, 6); g.fill(); g.stroke();
+    g.fillStyle = '#55565e';
+    for (const s of [-1, 1]) { g.beginPath(); g.arc(X + s * cw * 0.3, ry - 2, 5, 0, 7); g.fill(); }
+    const px = X, py = ry - ch - 4, Lp = 2 * p.l * sc, tx = px + Lp * Math.sin(th), ty = py - Lp * Math.cos(th);
+    g.strokeStyle = '#e9e9ee'; g.lineWidth = Math.max(4, 0.025 * sc);
+    g.beginPath(); g.moveTo(px, py); g.lineTo(tx, ty); g.stroke();
+    g.fillStyle = COL[k]; g.beginPath(); g.arc(px, py, 5, 0, 7); g.fill();
+    if (L.Fd) { const s = Math.sign(L.Fd); g.strokeStyle = '#ffd43b'; g.lineWidth = 3; g.beginPath(); g.moveTo(tx - s * 46, ty); g.lineTo(tx - s * 8, ty); g.stroke();
+      g.fillStyle = '#ffd43b'; g.beginPath(); g.moveTo(tx - s * 6, ty); g.lineTo(tx - s * 16, ty - 7); g.lineTo(tx - s * 16, ty + 7); g.fill(); }
+    // labels
+    g.fillStyle = COL[k]; g.font = `600 ${film ? 26 : 16}px system-ui`; g.fillText(NAME[k], 14, film ? 38 : 26);
+    g.fillStyle = '#9a9aa2'; g.font = `${film ? 18 : 12.5}px system-ui`;
+    const deg = (S.wrap(th) * 180 / Math.PI).toFixed(1).padStart(6);
+    g.fillText(`${L.mode === 'bal' ? 'balancing' : 'swing-up (energy)'}`, 14, film ? 66 : 44);
+    g.textAlign = 'right';
+    g.fillText(`θ ${deg}°   x ${L.s[0].toFixed(2)} m   F ${L.F.toFixed(1)} N`, w - 14, film ? 38 : 26);
+    g.textAlign = 'left';
+  }
+  function roundRect(g, x, y, w, h, r) { g.beginPath(); g.moveTo(x + r, y); g.arcTo(x + w, y, x + w, y + h, r); g.arcTo(x + w, y + h, x, y + h, r); g.arcTo(x, y + h, x, y, r); g.arcTo(x, y, x + w, y, r); g.closePath(); }
+  const PL = { th: ['Pole angle (deg)', 25], x: ['Cart position (m)', 1.2], F: ['Control force (N)', 16] };
+  function drawPlot(el) {
+    const q = el.dataset.q, [g, w, h] = fit(el.querySelector('canvas'));
+    g.clearRect(0, 0, w, h);
+    let lim = PL[q][1];
+    if (q === 'th') { let m = 5; for (const k of KINDS) for (const v of hist[k].th) m = Math.max(m, Math.abs(v)); lim = Math.min(180, Math.ceil(m / 5) * 5); }
+    if (q === 'F') lim = Math.max(5, plant.Fmax + 1);
+    const y0 = h / 2, sy = (h / 2 - 8) / lim, x0 = 64;
+    g.strokeStyle = '#2a2b30'; g.lineWidth = 1; g.beginPath(); g.moveTo(x0, y0); g.lineTo(w - 8, y0); g.stroke();
+    g.fillStyle = '#9a9aa2'; g.font = `${film ? 15 : 11.5}px system-ui`;
+    g.fillText(PL[q][0], x0 + 6, 16); g.fillText('+' + lim, 8, 16); g.fillText('−' + lim, 8, h - 6);
+    for (const k of KINDS) {
+      const a = hist[k][q]; if (!a.length) continue;
+      g.strokeStyle = COL[k]; g.lineWidth = film ? 2.4 : 1.6; g.beginPath();
+      const dx = (w - 8 - x0) / HIST, off = HIST - a.length;
+      for (let i = 0; i < a.length; i++) { const X = x0 + (off + i) * dx, Y = y0 - Math.max(-lim, Math.min(lim, a[i])) * sy; i ? g.lineTo(X, Y) : g.moveTo(X, Y); }
+      g.stroke();
+    }
+  }
+  function draw() {
+    document.querySelectorAll('.cart').forEach((el) => drawCart(el.dataset.k, el));
+    document.querySelectorAll('.plot').forEach(drawPlot);
+  }
+
+  // ---- UI ----
+  function bindSlider(id, get, set, fmt) {
+    const i = $(id), o = i.nextElementSibling; i.value = get(); o.textContent = fmt(+i.value);
+    i.addEventListener('input', () => { set(+i.value); o.textContent = fmt(+i.value); });
+  }
+  if (!film) {
+    bindSlider('sM', () => plant.mm, (v) => { plant.mm = v; applyPlant(); }, (v) => v.toFixed(2));
+    bindSlider('sL', () => plant.lm, (v) => { plant.lm = v; applyPlant(); }, (v) => v.toFixed(2));
+    bindSlider('sN', () => plant.noise, (v) => { plant.noise = v; applyPlant(); }, (v) => v.toFixed(3));
+    bindSlider('sF', () => plant.Fmax, (v) => { plant.Fmax = v; applyPlant(); }, (v) => v.toFixed(0));
+    $('sSat').addEventListener('change', (e) => { plant.sat = e.target.checked; applyPlant(); });
+    bindSlider('gP', () => pid.Kp, (v) => (pid.Kp = v), (v) => v.toFixed(1));
+    bindSlider('gI', () => pid.Ki, (v) => (pid.Ki = v), (v) => v.toFixed(1));
+    bindSlider('gD', () => pid.Kd, (v) => (pid.Kd = v), (v) => v.toFixed(1));
+    $('bTilt').onclick = () => reset(0.2);
+    $('bSwing').onclick = () => reset(Math.PI);
+    $('bPush').onclick = () => KINDS.forEach((k) => push(k, 1.5));
+    document.querySelectorAll('.cart').forEach((el) => el.addEventListener('click', (e) => {
+      const r = el.getBoundingClientRect(); push(el.dataset.k, e.clientX - r.left > r.width / 2 ? -1.5 : 1.5);
+    }));
+  }
+  // scoreboard
+  const R = D.results, f = (v, d) => (v == null ? '–' : v.toFixed(d));
+  $('score').innerHTML = `<tr><th></th>${KINDS.map((k) => `<th class="k-${k}">${k.toUpperCase()}</th>`).join('')}</tr>` +
+    [['Settling time (s)', (k) => f(R.standard[k].settle_s, 2)], ['Overshoot (%)', (k) => f(R.standard[k].overshoot_pct, 0)],
+     ['RMS angle (°)', (k) => f(R.standard[k].rms_deg, 2)], ['Effort ∫F²dt', (k) => f(R.standard[k].effort, 1)],
+     [`Survived, ${R.n} random runs`, (k) => f(R.sweep[k].survived_pct, 0) + '%'], ['Sweep RMS angle (°)', (k) => f(R.sweep[k].rms_deg, 2)]]
+      .map(([n, fn]) => `<tr><td>${n}</td>${KINDS.map((k) => `<td>${fn(k)}</td>`).join('')}</tr>`).join('');
+
+  // ---- cross-check: replay the Python reference runs in this simulator ----
+  function crossCheck() {
+    let eth = 0, ex = 0, eF = 0;
+    const cases = KINDS.map((k) => [k, new S.Loop(k, gains(k), D.P, [0, 0, 0.15, 0], { noise: 0.005, seed: 7, pushes: [[1.0, 0.1, 1.0]] }), D.ref[k], 400])
+      .concat([['lqr', new S.Loop('lqr', D.K, D.P, [0, 0, Math.PI, 0], { rails: 'clamp' }), D.ref.swing, 600]]);
+    for (const [k, L, ref, n] of cases) {
+      for (let i = 0; i < n; i++) {
+        eth = Math.max(eth, Math.abs(S.wrap(S.wrap(L.s[2]) - ref.th[i]))); ex = Math.max(ex, Math.abs(L.s[0] - ref.x[i]));
+        L.step(); eF = Math.max(eF, Math.abs(L.F - ref.F[i]));
+      }
+    }
+    const Kjs = S.dlqr(D.Ad, D.Bd, D.Q, D.R), eK = Math.max(...Kjs.map((v, i) => Math.abs(v - D.K[i])));
+    const ok = eth < 1e-6 && ex < 1e-6 && eK < 1e-6;
+    window.CHECK = { eth, ex, eF, eK, ok };
+    $('check').textContent = `Browser vs Python, 4 reference runs: max |Δθ| ${eth.toExponential(1)} rad, |Δx| ${ex.toExponential(1)} m. ` +
+      `LQR gain from the browser's own Riccati iteration vs scipy: max |ΔK| ${eK.toExponential(1)}. ${ok ? '✓' : '✗'}`;
+  }
+  crossCheck();
+
+  // ---- run ----
+  reset(0.2);
+  if (!film) {
+    let last = performance.now(), acc = 0;
+    (function loop(now) {
+      acc += Math.min(0.1, (now - last) / 1000); last = now;
+      while (acc >= S.DT) { stepAll(); acc -= S.DT; }
+      draw(); requestAnimationFrame(loop);
+    })(last);
+  } else {
+    // Scripted film timeline, stepped frame by frame by the capture script (window.FILM.frame(i) at 30 fps).
+    const cap = $('cap');
+    const say = (s) => { cap.textContent = s; };
+    let t = 0;
+    const events = [
+      [0.0, () => { say('Same plant, same 0.2 rad tilt'); reset(0.2); }],
+      [3.2, () => say('Same push at the pole tip')], [3.6, () => KINDS.forEach((k) => push(k, 1.6))],
+      [6.6, () => { say('Pole 2.5× heavier, 1.4× longer — gains unchanged'); plant.mm = 2.5; plant.lm = 1.4; applyPlant(); }],
+      [8.4, () => KINDS.forEach((k) => push(k, -2.0))],
+      [11.6, () => { say('Swing-up from hanging: energy pumping, then catch'); plant.mm = 1; plant.lm = 1; reset(Math.PI); }],
+      [20.0, () => {
+        say(''); const e = $('end'); e.style.display = 'flex';
+        e.innerHTML = `<div class="big">${R.n} randomised runs · mass, length, noise, push</div>` +
+          KINDS.map((k) => `<div class="row"><span style="color:${COL[k]}">${NAME[k]}</span> — survived ${R.sweep[k].survived_pct.toFixed(0)}%, RMS ${R.sweep[k].rms_deg.toFixed(1)}°</div>`).join('') +
+          `<div class="mut">Same simulator in Python and in the browser · 0smallcat0.github.io/mechanical-design-demos</div>`;
+      }],
+    ];
+    let ei = 0;
+    window.FILM = {
+      frame(i) {
+        const target = i / 30;
+        while (ei < events.length && events[ei][0] <= target + 1e-9) { events[ei][1](); ei++; }
+        while (t < target - 1e-9) { stepAll(); t += S.DT; }
+        draw();
+      },
+    };
+  }
+  window.LIVE = { loops, push, reset };
+})();
+</script>
+</body>
+</html>

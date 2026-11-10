@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Print-in-place folding stand — browser configurator, printability checks, STL · 可列印折疊支架</title>
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+<header>
+  <a href="../">&larr; All demos · 所有作品</a>
+  <h1>Print-in-place folding stand · 可列印折疊支架</h1>
+  <p class="lede">A phone and tablet stand that comes off the printer as one piece, with a working hinge and a built-in stop at your viewing angle. Set your device in the browser. The model, the printability checks and the STL are generated on the spot.</p>
+  <p class="lede">在瀏覽器設定尺寸，即時產生可直接列印的折疊支架與檢查結果。</p>
+</header>
+
+<main>
+<section>
+  <img src="media/hero.png" alt="Orange and graphite folding stand open on a desk, hinge and device lip visible">
+</section>
+
+<section>
+  <h2>Configurator · 配置器</h2>
+  <p>Five sliders: device width, thickness with case, viewing angle, lip height and hinge clearance. Every change rebuilds the solid in about half a second, re-runs the checks and updates the print estimate. <b>Download STL</b> saves exactly what you see, already in print orientation.</p>
+  <p><a class="button" href="configurator.html">Open the configurator · 打開配置器</a></p>
+  <p><img src="media/configurator-default.png" alt="Configurator with sliders, printability checks and a 3D view of the stand holding a phone"></p>
+</section>
+
+<section>
+  <h2>24-second product film · 24 秒產品片</h2>
+  <p>The stand on a desk, folding flat and opening to its stop, three viewing angles, and how it sits on the build plate.</p>
+  <video src="product-film.mp4" controls preload="metadata" poster="media/product-film-poster.jpg"></video>
+</section>
+
+<section>
+  <h2>How it prints in place · 怎麼一次印出可動的鉸鏈</h2>
+  <div class="grid">
+    <img src="media/print-pose.png" alt="Stand printed on its side on a build plate, hinge axis vertical">
+    <img src="media/angles.png" alt="Side view of the stand holding a phone at 75 degrees">
+  </div>
+  <ul>
+    <li><b>Printed on its side.</b> The hinge axis stands vertical, so every wall is vertical. No supports, overhang under 1 % of the surface.</li>
+    <li><b>Pinless cone pivots.</b> Knuckles alternate between the two legs. Each one carries a 45° cone that sits in a matching recess one clearance away, so nothing fuses and nothing needs a pin.</li>
+    <li><b>Printed stop.</b> A barrel around the hinge is split between the legs. Opening the stand closes the angular gap until the two faces meet at exactly the viewing angle you set, and the load of the device presses them together.</li>
+  </ul>
+</section>
+
+<section>
+  <h2>Checks on the default size · 預設尺寸的檢查</h2>
+  <table>
+    <tr><th>Solids</th><td>2 closed, manifold bodies (front leg, rear leg); every edge shared by exactly two faces</td></tr>
+    <tr><th>Hinge clearance</th><td>0.40 mm everywhere (target ≥ 0.30 mm), measured between the two bodies</td></tr>
+    <tr><th>Motion</th><td>Swings free from the print pose to 57° and locks there (boolean overlap test at every step)</td></tr>
+    <tr><th>Overhang &gt; 45°</th><td>0.54 % of the surface, all of it the undersides of the knuckles</td></tr>
+    <tr><th>Thinnest wall</th><td>1.4 mm around the cone recess (3 perimeters at 0.4 mm)</td></tr>
+    <tr><th>Bed</th><td>92 × 26 mm footprint, 60 mm tall; fits any 220 × 220 mm printer</td></tr>
+    <tr><th>Print estimate</th><td>44 g PLA (14.7 m), about 1 h 20 min</td></tr>
+  </table>
+  <p>The browser and an independent Python check (trimesh ray sampling, closest-point clearance) agree. A separate CadQuery build of the same design matches the volume within 0.01 %. Full results: <a href="analysis.json">analysis.json</a></p>
+</section>
+
+<section>
+  <h2>Print estimate method · 列印估算方法</h2>
+  <p>No slicer is involved. The estimate assumes PLA, a 0.4 mm nozzle and 0.2 mm layers:</p>
+  <ul>
+    <li><b>Shell:</b> side area × 1.2 mm of walls, plus flat area × 0.8 mm of top and bottom skins.</li>
+    <li><b>Infill:</b> the remaining volume at 15 %.</li>
+    <li><b>Mass:</b> extruded volume × 1.24 g/cm³.</li>
+    <li><b>Time:</b> walls at 8 mm³/s, infill at 12 mm³/s, plus 1.5 s per layer and 2 min for start-up.</li>
+  </ul>
+  <p>Expect it to be within about ±25 % of a slicer's figure.</p>
+</section>
+
+<section>
+  <h2>Files</h2>
+  <ul>
+    <li><a href="cad/printable-stand_print-pose.stl">printable-stand_print-pose.stl</a>: default size, ready to slice</li>
+    <li><a href="cad/printable-stand_print-pose.3mf">printable-stand_print-pose.3mf</a>: the same, as two named objects</li>
+    <li><a href="cad/printable-stand_print-pose.step">printable-stand_print-pose.step</a> and <a href="cad/printable-stand_use-pose.step">printable-stand_use-pose.step</a>: CadQuery solids for any CAD program</li>
+  </ul>
+  <p>Geometry runs on the <a href="https://github.com/elalish/manifold">Manifold</a> kernel (Apache-2.0) compiled to WebAssembly; the 3D view uses <a href="https://threejs.org">three.js</a> (MIT). Licenses: <a href="vendor/LICENSE-manifold.txt">Manifold</a>, <a href="vendor/LICENSE-three.txt">three.js</a>.</p>
+</section>
+</main>
+</body>
+</html>

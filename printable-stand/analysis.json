@@ -1,0 +1,130 @@
+{
+ "product": "Print-in-place folding stand (generic design), default size",
+ "params": {
+  "devW": 75,
+  "devT": 11,
+  "tilt": 65,
+  "clr": 0.4,
+  "lipH": 8
+ },
+ "derived": {
+  "devW": 75,
+  "devT": 11,
+  "tilt": 65,
+  "clr": 0.4,
+  "lipH": 8,
+  "t": 4,
+  "c": 0.4,
+  "rk": 4.2,
+  "R1": 4.6,
+  "R2": 7,
+  "rc": 2.234,
+  "beta": 58,
+  "psi": 57,
+  "W": 60,
+  "LF": 80,
+  "LR": 85.521,
+  "tl": 3.2,
+  "tlip": 2.4,
+  "gapDev": 12,
+  "n": 5,
+  "s": 11.68,
+  "aR0": 190,
+  "aF1": 133
+ },
+ "checks_browser_kernel": {
+  "bodies": 2,
+  "manifold": true,
+  "volume_mm3": 48071.9039174417,
+  "area_mm2": 28379.848328989512,
+  "bbox_mm": [
+   92.41156420856714,
+   25.600000001490116,
+   60
+  ],
+  "fitsBed": true,
+  "hingeGap_mm": 0.3998928744837702,
+  "freeRotation_deg": 54,
+  "rotatesToStop": true,
+  "stopOverlap_mm3": 14.072671268541685,
+  "locksAtStop": true,
+  "overhang_mm2": 153.93366428737085,
+  "overhangPct": 0.5424048097804935,
+  "horizArea_mm2": 2114.292587681852,
+  "walls_mm": {
+   "leg": 4,
+   "ledge": 3.2,
+   "lip": 2.4,
+   "stopBarrel": 2.3999999999999995,
+   "recessWall": 1.4
+  },
+  "minWall_mm": 1.4,
+  "minWallOk": true,
+  "clearanceOk": true,
+  "estimate": {
+   "extruded_mm3": 35439.37140337373,
+   "shell_mm3": 33210.10095971467,
+   "sparse_mm3": 14861.802957727028,
+   "grams": 43.94482054018342,
+   "meters": 14.73397848533287,
+   "layers": 300,
+   "minutes": 81.78391928226536
+  },
+  "build_ms": 742
+ },
+ "checks_independent_python": {
+  "file": "stand_print_pose.stl",
+  "bodies": 2,
+  "per_body": [
+   {
+    "watertight": true,
+    "winding_consistent": true,
+    "volume_mm3": 25401.67059245374,
+    "euler": 2
+   },
+   {
+    "watertight": true,
+    "winding_consistent": true,
+    "volume_mm3": 22670.229632080907,
+    "euler": 2
+   }
+  ],
+  "all_watertight": true,
+  "volume_mm3": 48071.90022453465,
+  "overhang_mm2": 153.93366428737076,
+  "overhang_pct": 0.542404809780494,
+  "bottom_on_bed_mm2": 802.8930315557529,
+  "bbox_mm": [
+   92.41156768798828,
+   25.600000381469727,
+   60.0
+  ],
+  "fits_220x220x250": true,
+  "hinge_clearance_mm": 0.3998925706000313,
+  "clearance_samples": 28926,
+  "clearance_ok": true,
+  "wall_thickness_mm": {
+   "p1": 2.2986684900668983,
+   "p5": 2.298668718427661,
+   "median": 3.9998998062849047,
+   "samples": 4158
+  },
+  "design_min_wall_mm": 1.4,
+  "swing_free_to_deg": 56.0,
+  "swings_to_stop": true,
+  "overlap_past_stop_mm3": 28.144675722895848,
+  "locks_at_stop": true
+ },
+ "cadquery_cross_check": {
+  "volume_mm3": 48075.82377268857,
+  "manifold_volume_mm3": 48071.9039174417,
+  "diff_pct": 0.008154150194686,
+  "use_pose_bbox_mm": [
+   60.000000000000014,
+   99.54791436484943,
+   79.42009931058385
+  ],
+  "solids_valid": true
+ },
+ "estimate_method": "No slicer. Shell = side area x 1.2 mm walls + flat area x 0.8 mm skins (capped at solid volume); remaining volume at 15 % infill. PLA 1.24 g/cm3, 1.75 mm filament. Time = shell / 8 mm3/s + infill / 12 mm3/s + 1.5 s per 0.2 mm layer + 2 min start. Expect +-25 % against a slicer."
+}

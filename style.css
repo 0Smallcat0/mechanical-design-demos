@@ -23,3 +23,5 @@ th { color: var(--muted); font-weight: 500; width: 34%; }
 .hire a { color: var(--accent); }
 .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 24px; margin: 24px 0 64px; }
 .cards .card { max-width: none; margin: 0; }
+
+h2.group { margin: 48px 0 0; font-size: 1.15rem; }

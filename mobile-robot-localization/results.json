@@ -1,0 +1,356 @@
+{
+ "generated": "2026-11-10T20:32:07.999Z",
+ "seeds": 20,
+ "globalLocalization": {
+  "success": "17/20",
+  "medianSeconds": 19.6,
+  "p90Seconds": 32.4,
+  "criterion": "error < 10 cm held for 1 s, still < 10 cm after 90 s",
+  "runs": [
+   {
+    "seed": 1,
+    "ok": true,
+    "conv": 32.4
+   },
+   {
+    "seed": 2,
+    "ok": true,
+    "conv": 17.8
+   },
+   {
+    "seed": 3,
+    "ok": true,
+    "conv": 42.1
+   },
+   {
+    "seed": 4,
+    "ok": true,
+    "conv": 12.7
+   },
+   {
+    "seed": 5,
+    "ok": true,
+    "conv": 32
+   },
+   {
+    "seed": 6,
+    "ok": false,
+    "conv": 25.1
+   },
+   {
+    "seed": 7,
+    "ok": true,
+    "conv": 25.9
+   },
+   {
+    "seed": 8,
+    "ok": true,
+    "conv": 0.2
+   },
+   {
+    "seed": 9,
+    "ok": true,
+    "conv": 3.6
+   },
+   {
+    "seed": 10,
+    "ok": true,
+    "conv": 29.3
+   },
+   {
+    "seed": 11,
+    "ok": true,
+    "conv": 18
+   },
+   {
+    "seed": 12,
+    "ok": true,
+    "conv": 23.8
+   },
+   {
+    "seed": 13,
+    "ok": false,
+    "conv": null
+   },
+   {
+    "seed": 14,
+    "ok": false,
+    "conv": 8.6
+   },
+   {
+    "seed": 15,
+    "ok": true,
+    "conv": 23.1
+   },
+   {
+    "seed": 16,
+    "ok": true,
+    "conv": 18.9
+   },
+   {
+    "seed": 17,
+    "ok": true,
+    "conv": 16.7
+   },
+   {
+    "seed": 18,
+    "ok": true,
+    "conv": 19.6
+   },
+   {
+    "seed": 19,
+    "ok": true,
+    "conv": 1.5
+   },
+   {
+    "seed": 20,
+    "ok": true,
+    "conv": 28.4
+   }
+  ]
+ },
+ "tracking": {
+  "meanErrorCm": 5.36,
+  "p95ErrorCm": 7.29,
+  "samples": 11670
+ },
+ "deadReckoning": {
+  "medianEndErrorM": 8.79,
+  "note": "same runs, wheel odometry only, given the true start pose; 3 deliveries, 120 s"
+ },
+ "kidnapped": {
+  "recovered": "14/20",
+  "medianNoticeSeconds": 0.3,
+  "medianRecoverSeconds": 9.5,
+  "runs": [
+   {
+    "seed": 1,
+    "ok": false,
+    "noticed": 1,
+    "recovered": null
+   },
+   {
+    "seed": 2,
+    "ok": false,
+    "noticed": 0.5999999999999996,
+    "recovered": null
+   },
+   {
+    "seed": 3,
+    "ok": true,
+    "noticed": 4.199999999999999,
+    "recovered": 5.100000000000001
+   },
+   {
+    "seed": 4,
+    "ok": true,
+    "noticed": 0.1999999999999993,
+    "recovered": 10.5
+   },
+   {
+    "seed": 5,
+    "ok": false,
+    "noticed": 0.1999999999999993,
+    "recovered": null
+   },
+   {
+    "seed": 6,
+    "ok": true,
+    "noticed": 0.1999999999999993,
+    "recovered": 9.7
+   },
+   {
+    "seed": 7,
+    "ok": true,
+    "noticed": 0.29999999999999893,
+    "recovered": 11.5
+   },
+   {
+    "seed": 8,
+    "ok": true,
+    "noticed": 0.5999999999999996,
+    "recovered": 15.3
+   },
+   {
+    "seed": 9,
+    "ok": false,
+    "noticed": 0.1999999999999993,
+    "recovered": null
+   },
+   {
+    "seed": 10,
+    "ok": true,
+    "noticed": null,
+    "recovered": 3.6000000000000014
+   },
+   {
+    "seed": 11,
+    "ok": true,
+    "noticed": 0.1999999999999993,
+    "recovered": 4.5
+   },
+   {
+    "seed": 12,
+    "ok": true,
+    "noticed": 0.29999999999999893,
+    "recovered": 7.300000000000001
+   },
+   {
+    "seed": 13,
+    "ok": true,
+    "noticed": 0.29999999999999893,
+    "recovered": 16
+   },
+   {
+    "seed": 14,
+    "ok": true,
+    "noticed": 0.1999999999999993,
+    "recovered": 1.1000000000000014
+   },
+   {
+    "seed": 15,
+    "ok": false,
+    "noticed": 0.29999999999999893,
+    "recovered": null
+   },
+   {
+    "seed": 16,
+    "ok": true,
+    "noticed": 1.1000000000000014,
+    "recovered": 9.399999999999999
+   },
+   {
+    "seed": 17,
+    "ok": false,
+    "noticed": 0.1999999999999993,
+    "recovered": null
+   },
+   {
+    "seed": 18,
+    "ok": true,
+    "noticed": 0.40000000000000036,
+    "recovered": 0.6999999999999993
+   },
+   {
+    "seed": 19,
+    "ok": true,
+    "noticed": 0.40000000000000036,
+    "recovered": 9.5
+   },
+   {
+    "seed": 20,
+    "ok": true,
+    "noticed": 0.29999999999999893,
+    "recovered": 18.6
+   }
+  ]
+ },
+ "planning": {
+  "pairs": 10,
+  "allOptimal": true,
+  "medianExpandedRatio": 0.3,
+  "medianAStarMs": 7.68,
+  "plans": [
+   {
+    "from": "dock",
+    "to": "pickA",
+    "lengthM": 16.3,
+    "sameCost": true,
+    "aExpanded": 5179,
+    "dExpanded": 14006,
+    "aMs": 11.07,
+    "dMs": 43.45
+   },
+   {
+    "from": "dock",
+    "to": "pickB",
+    "lengthM": 11.6,
+    "sameCost": true,
+    "aExpanded": 1642,
+    "dExpanded": 9369,
+    "aMs": 3.91,
+    "dMs": 16.1
+   },
+   {
+    "from": "dock",
+    "to": "pickC",
+    "lengthM": 4.58,
+    "sameCost": true,
+    "aExpanded": 216,
+    "dExpanded": 2986,
+    "aMs": 0.6,
+    "dMs": 18.08
+   },
+   {
+    "from": "dock",
+    "to": "office",
+    "lengthM": 23.92,
+    "sameCost": true,
+    "aExpanded": 8810,
+    "dExpanded": 20807,
+    "aMs": 18.4,
+    "dMs": 42.43
+   },
+   {
+    "from": "pickA",
+    "to": "pickB",
+    "lengthM": 13.99,
+    "sameCost": true,
+    "aExpanded": 2417,
+    "dExpanded": 14830,
+    "aMs": 4.96,
+    "dMs": 26.85
+   },
+   {
+    "from": "pickA",
+    "to": "pickC",
+    "lengthM": 13.06,
+    "sameCost": true,
+    "aExpanded": 1997,
+    "dExpanded": 13853,
+    "aMs": 3.91,
+    "dMs": 35.63
+   },
+   {
+    "from": "pickB",
+    "to": "pickC",
+    "lengthM": 8.55,
+    "sameCost": true,
+    "aExpanded": 973,
+    "dExpanded": 7719,
+    "aMs": 1.92,
+    "dMs": 14.37
+   },
+   {
+    "from": "office",
+    "to": "pickA",
+    "lengthM": 9.75,
+    "sameCost": true,
+    "aExpanded": 2552,
+    "dExpanded": 8136,
+    "aMs": 13.5,
+    "dMs": 23.62
+   },
+   {
+    "from": "office",
+    "to": "pickB",
+    "lengthM": 14.84,
+    "sameCost": true,
+    "aExpanded": 3493,
+    "dExpanded": 11794,
+    "aMs": 7.68,
+    "dMs": 44.45
+   },
+   {
+    "from": "office",
+    "to": "pickC",
+    "lengthM": 20.68,
+    "sameCost": true,
+    "aExpanded": 6684,
+    "dExpanded": 17108,
+    "aMs": 14.01,
+    "dMs": 32.35
+   }
+  ]
+ }
+}

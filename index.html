@@ -3,12 +3,12 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Mechanical design demos · 機械設計作品集</title>
+<title>Engineering demos · 工程作品集</title>
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
 <header>
-  <h1>Mechanical design demos · 機械設計作品集</h1>
+  <h1>Engineering demos · 工程作品集</h1>
   <p class="lede">Click a picture to open it. Everything runs in the browser, nothing to install.<br>點圖片打開，免安裝。</p>
 </header>
 <main>
@@ -22,6 +22,29 @@
     <img src="walking-pick-robot/media/render-hero.jpg" alt="Studio render of the eight-legged pick-up robot">
     <h2>Eight-legged pick-up robot + EV3 · 八足取物機器人</h2>
     <p>University capstone (team lead, electronics and control). Interactive simulation driven by the real command protocol, a 30-second product film rendered from the simulation, and a 44-second tour.<br><b>Try:</b> press F to walk, D to lower the arm, or Cut link to cut the wireless link.</p>
+  </a>
+  </div>
+  <h2 class="group">Robotics, control and 3D printing · 機器人、控制與 3D 列印</h2>
+  <div class="cards">
+  <a class="card" href="robot-arm-planning/">
+    <img src="robot-arm-planning/media/hero.png" alt="6-DOF arm planning a path over a wall">
+    <h2>6-DOF arm: IK and motion planning · 六軸手臂逆運動學與路徑規劃</h2>
+    <p>Inverse kinematics (damped least squares) and RRT-Connect planning around obstacles, with smooth trajectories and live joint plots. Tested on 1,000 random poses, worst error 0.01 mm.<br><b>Try:</b> drag the target, then press Plan to target.</p>
+  </a>
+  <a class="card" href="inverted-pendulum-control/">
+    <img src="inverted-pendulum-control/media/live-push.png" alt="Three inverted pendulums balanced by PID, LQR and RL">
+    <h2>Inverted pendulum: PID vs LQR vs RL · 倒單擺控制比較</h2>
+    <p>Three controllers balance the same nonlinear cart-pole side by side, with a scoreboard from a 50-run robustness sweep.<br><b>Try:</b> click a cart to push it, or make the pole 3× heavier.</p>
+  </a>
+  <a class="card" href="mobile-robot-localization/">
+    <img src="mobile-robot-localization/media/poster.jpg" alt="Warehouse robot localizing with lidar and a particle filter">
+    <h2>Warehouse robot: localization and planning · 倉儲機器人定位與路徑規劃</h2>
+    <p>Particle-filter localization from simulated lidar, A* planning and pure-pursuit driving. Tracks within about 5 cm while odometry alone drifts metres.<br><b>Try:</b> Kidnap robot, or drop a box in its path.</p>
+  </a>
+  <a class="card" href="printable-stand/">
+    <img src="printable-stand/media/card.jpg" alt="Orange 3D-printed folding phone stand">
+    <h2>Print-in-place folding stand · 可列印折疊支架</h2>
+    <p>Set the device size and angle in the browser; the model, printability checks and print estimate update live, and the STL downloads straight to your printer.<br><b>Try:</b> open the configurator and press Download STL.</p>
   </a>
   </div>
 </main>

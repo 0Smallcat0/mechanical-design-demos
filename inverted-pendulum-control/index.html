@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Inverted pendulum control — PID vs LQR vs reinforcement learning · 倒單擺控制比較</title>
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+<header>
+  <a href="../">&larr; All demos · 所有作品</a>
+  <h1>Inverted pendulum: PID vs LQR vs RL · 倒單擺控制比較</h1>
+  <p class="lede">One nonlinear cart-pole, three controllers: a tuned PID, an LQR from the Riccati equation, and a neural-network policy trained with the cross-entropy method. They run side by side in the browser, where you can push them, add sensor noise and change the pole.</p>
+  <p class="lede">同一台倒單擺，PID、LQR、強化學習三種控制器並排比較：可以推它、加感測雜訊、換擺桿。</p>
+</header>
+
+<main>
+<section>
+  <h2>Live comparison · 即時比較</h2>
+  <p>Click a panel to push that pole, swing all three up from hanging, or make the pole three times heavier and see which controller still holds it. The controllers keep their nominal gains when you change the plant.</p>
+  <p><a class="button" href="live.html">Open the live demo · 打開即時比較</a></p>
+  <img src="media/live-push.png" alt="Three cart-poles side by side with angle, cart position and force plots">
+</section>
+
+<section>
+  <h2>24-second demo · 24 秒示範</h2>
+  <p>Rendered frame by frame from the live page itself, with the same tilt, the same push, a heavier pole and a swing-up.</p>
+  <video src="demo.mp4" controls preload="metadata" poster="media/live-tilt.png"></video>
+</section>
+
+<section>
+  <h2>Results · 結果</h2>
+  <img src="media/results.png" alt="Pole angle after a tilt and a push for the three controllers, and survival rate over 50 randomised runs">
+  <table>
+    <tr><th></th><td><b>PID</b></td><td><b>LQR</b></td><td><b>RL (CEM)</b></td></tr>
+    <tr><th>Settling time, 0.2 rad tilt (to ±0.02 rad)</th><td>0.87 s</td><td>0.96 s</td><td>0.94 s</td></tr>
+    <tr><th>Overshoot past upright</th><td>36 %</td><td>30 %</td><td>23 %</td></tr>
+    <tr><th>RMS angle, 8 s</th><td>1.47°</td><td>1.40°</td><td>1.27°</td></tr>
+    <tr><th>Control effort ∫F² dt</th><td>10.1 N²·s</td><td>10.9 N²·s</td><td>21.7 N²·s</td></tr>
+    <tr><th>Survived, 50 randomised runs</th><td>84 %</td><td><b>92 %</b></td><td>90 %</td></tr>
+    <tr><th>RMS angle of survivors</th><td>3.95°</td><td>3.98°</td><td><b>3.43°</b></td></tr>
+  </table>
+  <p>The randomised runs use pole mass ×0.5–3, length ×0.6–1.6, start tilt ±0.25 rad, sensor noise σ = 0.01 rad and a 1–2.5 N tip push for 0.1 s at t = 2 s. A run fails if the pole passes 0.8 rad or the cart leaves the ±1.2 m rail. All three controllers get identical scenarios and identical noise sequences.</p>
+  <p>LQR survives the most runs. The learned policy holds the pole closest to upright but spends about twice the control effort. PID with a cart-position loop is cheapest on effort and loses the most runs when the pole gets heavy and long. Full numbers: <a href="results.json">results.json</a>.</p>
+</section>
+
+<section>
+  <h2>Method · 方法</h2>
+  <table>
+    <tr><th>Plant</th><td>Cart 1.0 kg, uniform pole 0.25 kg × 0.6 m, cart friction 0.2 N·s/m, pivot friction 0.003 N·m·s, force limit ±15 N, rail ±1.2 m. Lagrange equations:<br>
+      (M+m)ẍ + ml cosθ θ̈ − ml sinθ θ̇² = F − bẋ + F<sub>d</sub><br>
+      ml cosθ ẍ + (J+ml²) θ̈ − mgl sinθ = −cθ̇ + 2l cosθ F<sub>d</sub><br>
+      (θ = 0 upright, J = m(2l)²/12, F<sub>d</sub> = push at the tip). RK4, 2 substeps per 10 ms control period.</td></tr>
+    <tr><th>Sensing</th><td>Every controller sees noisy angle and cart position at 100 Hz; velocities come from a filtered finite difference, as with real encoders.</td></tr>
+    <tr><th>PID</th><td>F = K<sub>p</sub>θ + K<sub>i</sub>∫θ + K<sub>d</sub>θ̇ + K<sub>x</sub>x + K<sub>v</sub>ẋ. Gains found by Nelder–Mead on the nominal plant: K<sub>p</sub> 68.0, K<sub>d</sub> 11.1, K<sub>x</sub> 10.7, K<sub>v</sub> 11.5. K<sub>i</sub> settles at 0 because the plant has no constant bias; the slider lets you add it.</td></tr>
+    <tr><th>LQR</th><td>Linearised about upright, discretised with zero-order hold, discrete Riccati equation (scipy) with Q = diag(10, 1, 100, 1), R = 0.05: K = [−12.6, −14.3, −83.1, −14.7]. The live page re-derives K with its own Riccati iteration and matches scipy to 5×10⁻¹¹.</td></tr>
+    <tr><th>RL</th><td>4-16-1 tanh MLP, trained with the cross-entropy method (64 candidates, 8 elites, 120 generations, 5.4 CPU-minutes). Training used domain randomisation (pole mass ×0.5–2, length ×0.7–1.5, noise, pushes). Weights run in the browser as plain JavaScript.</td></tr>
+    <tr><th>Swing-up</th><td>Shared energy-pumping law, a = sat(k·E·sign(θ̇ cosθ)) with cart centring, then a hand-off to the balance controller once |θ| &lt; 0.35 rad. It is tuned for the nominal pole and can fail to reach the top for much shorter poles.</td></tr>
+    <tr><th>Cross-check</th><td>The browser simulator is a line-for-line port of the Python one and shares its noise generator. On load it replays four Python reference runs and reports the largest difference: 3×10⁻¹⁶ rad.</td></tr>
+  </table>
+</section>
+</main>
+</body>
+</html>
