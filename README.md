@@ -37,9 +37,9 @@ How to use · 怎麼用：
 | **INPUT TORQUE** slider · 輸入扭矩 | Load the gearbox harder and watch the forces change · 加大負載，看受力怎麼變 |
 | **WHY 11:1?** | Explains the gear ratio · 解釋為什麼是 11:1 |
 
-The project page also has a 41-second video, photo-style renders, engineering drawings (PDF) and STEP files that open in any CAD program.
+The project page also has a 38-second product film, a 41-second tour of the interactive model, photo-style renders, engineering drawings (PDF) and STEP files that open in any CAD program.
 
-專案頁另有 41 秒影片、渲染圖、工程圖 PDF，以及任何 CAD 軟體都能開的 STEP 檔。
+專案頁另有 38 秒產品片、41 秒互動模型導覽片、渲染圖、工程圖 PDF，以及任何 CAD 軟體都能開的 STEP 檔。
 
 ---
 
