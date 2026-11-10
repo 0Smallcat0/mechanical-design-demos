@@ -12,7 +12,7 @@ Runs in any modern browser. The interactive models are built for desktop; on a p
 
 ## CD-11 cycloidal reducer · CD-11 擺線減速機
 
-[![CD-11 interactive model](cd11-cycloid-reducer/renders/live_preview.png)](https://0smallcat0.github.io/mechanical-design-demos/cd11-cycloid-reducer/live.html)
+[![CD-11 cycloidal reducer with the front cover off, showing the cycloid disc and ring pins](cd11-cycloid-reducer/renders/render_open.png)](https://0smallcat0.github.io/mechanical-design-demos/cd11-cycloid-reducer/live.html)
 
 **▶ [Open the 3D model · 打開 3D 模型](https://0smallcat0.github.io/mechanical-design-demos/cd11-cycloid-reducer/live.html)**  ·  [Project page with video, drawings and CAD files · 專案頁（影片、工程圖、CAD 檔）](https://0smallcat0.github.io/mechanical-design-demos/cd11-cycloid-reducer/)
 
@@ -65,3 +65,6 @@ The key letters are the same as on the real robot.
 
 Another interactive 3D page, in its own project: [Interactive 3D room with real products](https://0smallcat0.github.io/interactive-3d-room/) (drag, rotate and open furniture in the browser).
 
+---
+
+The interactive model pages are built with the MIT-licensed teardown kit (based on [claude-motion](https://github.com/whaleyxbt/claude-motion)); see [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).
