@@ -43,6 +43,29 @@ The project page also has a 30-second product film, a 41-second tour of the inte
 
 ---
 
+## Eight-legged pick-up robot + EV3 transport robot · 八足取物機器人＋EV3 運輸機器人
+
+[![Pick-up robot simulation](walking-pick-robot/media/sim-pick.jpg)](https://0smallcat0.github.io/mechanical-design-demos/walking-pick-robot/live.html)
+
+**▶ [Open the simulation · 打開模擬](https://0smallcat0.github.io/mechanical-design-demos/walking-pick-robot/live.html)**  ·  [Project page with the real robot, tour video and CAD motion · 專案頁（實機、導覽影片、CAD 動作）](https://0smallcat0.github.io/mechanical-design-demos/walking-pick-robot/)
+
+University capstone (NCKU Mechanical Engineering, ME3173, six-person team). A walking robot picks up a part and hands it to a line-following EV3 robot. I led the team and owned the pick-up robot's electronics and control: Xbox controller → Python bridge → HC-05 Bluetooth → Arduino UNO, with a 500 ms command timeout so a dropped link stops the robot.
+
+成大機械系「機械專題實作」（六人一組）。八足機器人夾取零件、交給循跡的 EV3 送走。我是組長，負責取物機器人的電控：Xbox 手把 → Python 橋接 → HC-05 藍牙 → Arduino UNO，500 ms 收不到指令就自動停。
+
+| Do this · 動作 | What happens · 結果 |
+| --- | --- |
+| Just watch · 先看就好 | It plays the whole pick-and-hand-off sequence · 自動導覽整段流程 |
+| Click anywhere, then F / B / L / R | Walk · 行走 |
+| U / D, E / Q, A / Z | Arm up/down, rotate, reach · 手臂升降、旋轉、伸縮 |
+| O / C, G / K | Gripper open/close, gate open/close · 夾爪開合、閘門開關 |
+| **斷線** (top right · 右上) | Cuts the wireless link; the robot stops after 500 ms · 斷線，500 ms 後自動停 |
+| View buttons (top · 上方 總覽／夾取／電控…) | Jump to a camera view · 切視角 |
+
+The interface is in Chinese; the key letters are the same as on the real robot.
+
+---
+
 ## Web 3D example · 網頁互動 3D 範例
 
 Another interactive 3D page, in its own project: [Interactive 3D room with real products](https://0smallcat0.github.io/interactive-3d-room/) (drag, rotate and open furniture in the browser).

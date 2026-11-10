@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Eight-legged pick-up robot + EV3 transport robot</title>
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+<header>
+  <a href="../">&larr; All demos</a>
+  <h1>Eight-legged pick-up robot + EV3 transport robot</h1>
+  <p class="lede">Two robots that work as a pair: a walking robot picks up a part, carries it in a buffer box and drops it onto a line-following EV3 robot, which drives it to the unloading point. Capstone project for NCKU Mechanical Engineering (ME3173), six-person team, 2026. I led the team and owned the pick-up robot's electronics and control system.</p>
+  <p class="lede">取物機器人夾起零件、放進暫存盒、開閘交給 EV3 運輸機器人，再由 EV3 循跡送到卸貨點。成大機械系「機械專題實作」（ME3173），六人一組；我是組長，負責取物機器人的電控系統。</p>
+</header>
+
+<main>
+<section>
+  <h2>Interactive simulation · 互動模擬</h2>
+  <p>Drive the robot yourself with the same single-letter commands the real one used, switch between nine camera views, and cut the wireless link to watch the 500 ms safety stop. Left alone, it plays the whole pick-and-hand-off sequence. Made for a computer screen; the interface is in Chinese.</p>
+  <p>用跟實機一樣的單字元指令自己遙控、切 9 個視角，按「斷線」看 500 ms 逾時停止；放著不動會自動導覽整段流程。請用電腦開。</p>
+  <p><a class="button" href="live.html">Open the simulation · 打開模擬</a></p>
+  <div class="grid">
+    <img src="media/sim-pick.jpg" alt="Simulation: gripper lowering onto a nut on the tray, with the remote-control keys, pin outputs and leg linkage panels">
+    <img src="media/sim-electronics.jpg" alt="Simulation: see-through view of the electronics deck after the 500 ms command timeout stopped the robot">
+  </div>
+  <p>Command protocol, pin map, PWM and servo values, the 0.25 s resend and the 500 ms timeout follow the robot's control program. Link lengths, travel ranges and the field layout are estimated from photos and CAD.</p>
+</section>
+
+<section>
+  <h2>44-second tour · 44 秒導覽</h2>
+  <video src="tour.mp4" controls preload="metadata" poster="media/sim-pick.jpg"></video>
+</section>
+
+<section>
+  <h2>The real robot · 實機</h2>
+  <div class="grid" style="grid-template-columns: repeat(auto-fit, minmax(200px, 1fr))">
+    <video src="media/real-robot-remote.mp4" controls muted preload="metadata" poster="media/real-robot-remote-poster.jpg"></video>
+    <img src="media/robot-photo-1.jpg" alt="The pick-up robot on a lab bench: acrylic Jansen-linkage legs, lift column and gripper">
+    <img src="media/robot-photo-2.jpg" alt="Side view showing the gripper frame, buffer box and leg linkages">
+    <img src="media/robot-photo-3.jpg" alt="Front view of the chassis, electronics deck and turntable">
+  </div>
+  <p>Bench test with the Xbox controller: the robot is raised so the legs run free while the arm is driven.</p>
+  <p>實機測試：用 Xbox 手把遙控，機身墊高讓腳懸空，操作手臂升降。</p>
+</section>
+
+<section>
+  <h2>How it works · 怎麼運作</h2>
+  <table>
+    <tr><th>Legs · 足部</th><td>Eight Jansen-linkage legs, four per side, each side driven by one motor through a crank. Speeding up or slowing the left and right motors separately corrects drift.<br>八隻 Jansen 連桿腳，一側四隻、各由一顆馬達經曲柄帶動；左右馬達分別調速修偏。</td></tr>
+    <tr><th>Arm · 手臂</th><td>Three axes: lead-screw lift, turntable rotation, and horizontal reach driven by two continuous servos turning in opposite directions.<br>三軸：螺桿升降、轉盤旋轉、兩顆 360° 伺服反向同步驅動的水平伸縮。</td></tr>
+    <tr><th>Gripper · 夾爪</th><td>Two jaws geared together so they always open and close by the same angle.<br>左右同步齒輪，兩爪等角反向開合。</td></tr>
+    <tr><th>Hand-off · 交接</th><td>Parts wait in a box with a sloped floor; a servo gate opens and they slide onto the EV3's tray.<br>斜底暫存盒，伺服閘門一開，零件滑進 EV3 托盤。</td></tr>
+    <tr><th>EV3 robot · EV3 運輸</th><td>One light sensor with proportional steering follows the line; a side ultrasonic sensor finds the unloading platform and stops the robot there.<br>單光感比例控制循跡，側向超音波找到卸貨平台就停車卸貨。</td></tr>
+  </table>
+</section>
+
+<section>
+  <h2>Electronics and control (my part) · 電控（我負責的部分）</h2>
+  <table>
+    <tr><th>Control chain · 控制鏈</th><td>Xbox controller → Python bridge on a laptop → HC-05 Bluetooth (9600 baud) → Arduino UNO + Sensor Shield V5 → two L298N motor drivers and four continuous servos.</td></tr>
+    <tr><th>Command protocol · 指令</th><td>One character per action (F/B/L/R walk, U/D lift, E/Q rotate, A/Z reach, O/C gripper, G/K gate, X emergency stop), so every function can be tested from a serial monitor.<br>每個動作一個字元，用序列埠就能逐項測。</td></tr>
+    <tr><th>Fail-safe · 斷線保護</th><td>Held buttons are resent every 0.25 s; if the UNO hears nothing for a group for 500 ms, it stops that group. A dropped link or a closed program cannot leave the robot running.<br>按住每 0.25 s 重送，500 ms 沒收到就停該組，斷線不會暴走。</td></tr>
+    <tr><th>Power · 電源</th><td>Separate battery packs: one for the DC motors, one stepped down to 5 V (LM2596) for the logic and servos, all on a common ground; motor current runs on heavy wire, not breadboard jumpers.<br>馬達與控制端分兩組電池、共地，大電流走粗線。</td></tr>
+    <tr><th>Before building · 組裝前</th><td>Pin map, protocol, limit-switch logic, emergency stop and command timeout were simulated in Wokwi before any hardware was wired.<br>先在 Wokwi 模擬過腳位、協定、急停與逾時，才接實機。</td></tr>
+  </table>
+  <p>Mechanical design of the legs, arm and gripper, and the EV3 robot, were done by teammates.<br>足部、手臂、夾爪的機構與 EV3 運輸機器人由組員負責。</p>
+</section>
+
+<section>
+  <h2>CAD motion studies · CAD 動作</h2>
+  <div class="grid">
+    <video src="media/cad-jansen-legs.mp4" controls muted loop preload="metadata"></video>
+    <video src="media/cad-arm-lift-rotate.mp4" controls muted loop preload="metadata"></video>
+    <video src="media/cad-gripper.mp4" controls muted loop preload="metadata"></video>
+  </div>
+  <p>Jansen leg gait · arm lift and rotation · gripper opening and closing (SolidWorks).<br>Jansen 連桿步態 · 手臂升降與旋轉 · 夾爪開合。</p>
+</section>
+</main>
+</body>
+</html>
