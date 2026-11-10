@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CD-11 Cycloidal Reducer — design, analysis, interactive teardown</title>
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+<header>
+  <a href="../">&larr; All demos</a>
+  <h1>CD-11 single-stage cycloidal reducer</h1>
+  <p class="lede">From parameters to STEP, engineering drawings, load analysis, photoreal renders and an interactive 3D teardown. Every number on this page comes from the same source model.</p>
+</header>
+
+<main>
+<section>
+  <h2>Interactive teardown</h2>
+  <p>Explode, cut away the housing, watch per-pin contact forces and drag the input torque. Runs offline in one HTML file.</p>
+  <p><a class="button" href="live.html">Open the interactive model</a></p>
+</section>
+
+<section>
+  <h2>41-second tour</h2>
+  <video src="tour.mp4" controls preload="metadata" poster="renders/CD-11-shot-2-exploded.png"></video>
+</section>
+
+<section>
+  <h2>Key figures</h2>
+  <table>
+    <tr><th>Ratio</th><td>11 : 1 (12 ring pins, two 11-lobe discs at 180°)</td></tr>
+    <tr><th>Input</th><td>3000 rpm, 1.2 N·m</td></tr>
+    <tr><th>Output</th><td>272.7 rpm, 11.88 N·m</td></tr>
+    <tr><th>Pins in contact</th><td>5–7 at any crank angle</td></tr>
+    <tr><th>Peak pin force / Hertz stress</th><td>132 N / 436 MPa over a full revolution</td></tr>
+    <tr><th>Disc bearing (6804)</th><td>527 N peak, L10 ≈ 2,275 h — the life-limiting part</td></tr>
+  </table>
+  <p>Full results: <a href="analysis.json">analysis.json</a></p>
+</section>
+
+<section>
+  <h2>Renders</h2>
+  <div class="grid">
+    <img src="renders/render_assembled.png" alt="Assembled reducer, studio render">
+    <img src="renders/render_exploded.png" alt="Exploded view render">
+    <img src="renders/render_open.png" alt="Front cover removed, cycloid discs and ring pins visible">
+    <img src="renders/CD-11-shot-3-section-forces.png" alt="Section view with ring-pin force arrows">
+  </div>
+</section>
+
+<section>
+  <h2>Engineering drawings</h2>
+  <div class="grid">
+    <a href="drawings/CD-11_01_assembly.pdf"><img src="drawings/CD-11_01_assembly.png" alt="Assembly drawing"></a>
+    <a href="drawings/CD-11_03_cycloid_disc.pdf"><img src="drawings/CD-11_03_cycloid_disc.png" alt="Cycloid disc drawing"></a>
+    <a href="drawings/CD-11_05_eccentric_shaft.pdf"><img src="drawings/CD-11_05_eccentric_shaft.png" alt="Eccentric shaft drawing"></a>
+    <a href="drawings/CD-11_01b_pin_housing.pdf"><img src="drawings/CD-11_01b_pin_housing.png" alt="Pin housing drawing"></a>
+  </div>
+  <p>Third-angle projection, sections, balloons and parts list. Click a sheet for the PDF.</p>
+</section>
+
+<section>
+  <h2>CAD</h2>
+  <ul>
+    <li><a href="cad/CD-11_assembly.step">CD-11_assembly.step</a></li>
+    <li><a href="cad/CD-11_cycloid_disc.step">CD-11_cycloid_disc.step</a></li>
+  </ul>
+</section>
+</main>
+</body>
+</html>
