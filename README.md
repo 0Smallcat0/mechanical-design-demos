@@ -40,7 +40,7 @@ The project page also has a 30-second product film, a 41-second tour of the inte
 
 ## Eight-legged pick-up robot + EV3 transport robot · 八足取物機器人＋EV3 運輸機器人
 
-[![Pick-up robot simulation](walking-pick-robot/media/sim-pick.jpg)](https://0smallcat0.github.io/mechanical-design-demos/walking-pick-robot/live.html)
+[![Studio render of the eight-legged pick-up robot](walking-pick-robot/media/render-hero.jpg)](https://0smallcat0.github.io/mechanical-design-demos/walking-pick-robot/live.html)
 
 **▶ [Open the simulation · 打開模擬](https://0smallcat0.github.io/mechanical-design-demos/walking-pick-robot/live.html)**  ·  [Project page with the product film and tour · 專案頁（產品片、導覽影片）](https://0smallcat0.github.io/mechanical-design-demos/walking-pick-robot/)
 
