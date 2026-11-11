@@ -50,6 +50,18 @@ The compact gearbox used in robot joints: an oval cam flexes a thin toothed cup 
 
 ---
 
+## Print-in-place folding stand · 可列印折疊支架
+
+[![Orange 3D-printed folding phone stand](printable-stand/media/og.jpg)](https://0smallcat0.github.io/mechanical-design-demos/printable-stand/configurator.html)
+
+**▶ [Open the configurator · 打開設計器](https://0smallcat0.github.io/mechanical-design-demos/printable-stand/configurator.html)**  ·  [Project page with video and method · 專案頁（影片與方法）](https://0smallcat0.github.io/mechanical-design-demos/printable-stand/)
+
+A phone or tablet stand that prints in one piece with a working hinge. Set the device size and viewing angle; the model, printability checks (watertight, overhang, hinge clearance) and print-time estimate update live, and **Download STL** gives a file ready for the slicer.
+
+一體列印、鉸鏈直接能轉的支架；網頁改尺寸、檢查可印性、下載 STL。
+
+---
+
 ## Eight-legged pick-up robot + EV3 transport robot · 八足取物機器人＋EV3 運輸機器人
 
 [![Studio render of the eight-legged pick-up robot](walking-pick-robot/media/render-hero.jpg)](https://0smallcat0.github.io/mechanical-design-demos/walking-pick-robot/live.html)
@@ -85,51 +97,43 @@ The pick-up robot's electronics, wired as in its wiring plan, every board genera
 
 ---
 
-## 6-DOF arm: inverse kinematics and motion planning · 六軸手臂逆運動學與路徑規劃
+## What our capstone robots could not do yet · 專題機器人還做不到的事
+
+The pick-up robot was driven by hand from a gamepad and the EV3 followed a line on the floor. Each simulation below works out one thing they would need to run on their own.
+
+### 6-DOF arm: inverse kinematics and motion planning · 六軸手臂逆運動學與路徑規劃
 
 [![6-DOF arm planning a collision-free path over a wall](robot-arm-planning/media/og.jpg)](https://0smallcat0.github.io/mechanical-design-demos/robot-arm-planning/live.html)
 
 **▶ [Open the app · 打開互動頁](https://0smallcat0.github.io/mechanical-design-demos/robot-arm-planning/live.html)**  ·  [Project page with video and method · 專案頁（影片與方法）](https://0smallcat0.github.io/mechanical-design-demos/robot-arm-planning/)
 
-Drag a target and the arm follows by inverse kinematics; **Plan to target** finds a collision-free path around obstacles (RRT-Connect) and turns it into a smooth trajectory. Tested on 1,000 random poses (worst error 0.01 mm) and 20 planning seeds (all collision-free).
+The capstone arm was moved axis by axis from the gamepad; this one solves its own joints. Drag a target and the arm follows by inverse kinematics; **Plan to target** finds a collision-free path around obstacles (RRT-Connect) and turns it into a smooth trajectory. Tested on 1,000 random poses (worst error 0.01 mm) and 20 planning seeds (all collision-free).
 
 手臂逆運動學與避障路徑規劃，拖曳目標即時解。
 
 ---
 
-## Inverted pendulum: PD vs LQR vs reinforcement learning · 倒單擺控制比較
+### Inverted pendulum: PD vs LQR vs reinforcement learning · 倒單擺控制比較
 
 [![Three inverted pendulums balanced by PD, LQR and an RL policy](inverted-pendulum-control/media/og.jpg)](https://0smallcat0.github.io/mechanical-design-demos/inverted-pendulum-control/live.html)
 
 **▶ [Open the app · 打開互動頁](https://0smallcat0.github.io/mechanical-design-demos/inverted-pendulum-control/live.html)**  ·  [Project page with video and method · 專案頁（影片與方法）](https://0smallcat0.github.io/mechanical-design-demos/inverted-pendulum-control/)
 
-Three controllers balance the same nonlinear cart-pole side by side. Push a cart, add sensor noise or make the pole heavier and see which one holds. Over 2,000 randomized runs: PD + cart loop survives 80%, LQR 84%, RL 82%; hard cases show where each one fails.
+The EV3 held its line with a plain proportional controller; this compares what comes after it. Three controllers balance the same nonlinear cart-pole side by side. Push a cart, add sensor noise or make the pole heavier and see which one holds. Over 2,000 randomized runs: PD + cart loop survives 80%, LQR 84%, RL 82%; hard cases show where each one fails.
 
 PD、LQR、強化學習三種控制器同場比較，可推車、加雜訊、改擺桿。
 
 ---
 
-## Warehouse robot: localization, planning and path following · 倉儲機器人定位與路徑規劃
+### Warehouse robot: localization, planning and path following · 倉儲機器人定位與路徑規劃
 
 [![Warehouse robot localizing itself with lidar and a particle filter](mobile-robot-localization/media/og.jpg)](https://0smallcat0.github.io/mechanical-design-demos/mobile-robot-localization/live.html)
 
 **▶ [Open the app · 打開互動頁](https://0smallcat0.github.io/mechanical-design-demos/mobile-robot-localization/live.html)**  ·  [Project page with video and method · 專案頁（影片與方法）](https://0smallcat0.github.io/mechanical-design-demos/mobile-robot-localization/)
 
-A differential-drive robot finds where it is from simulated lidar (particle filter), plans with A* and drives with pure pursuit. In 200 simulated runs it always found itself (median 7.9 s), tracks within about 5 cm, and recovered from 191 of 200 kidnaps. Click to set goals, drop boxes in its way, or kidnap it.
+The pick-up robot only reached a part because a person steered it there; this one finds its own way. A differential-drive robot finds where it is from simulated lidar (particle filter), plans with A* and drives with pure pursuit. In 200 simulated runs it always found itself (median 7.9 s), tracks within about 5 cm, and recovered from 191 of 200 kidnaps. Click to set goals, drop boxes in its way, or kidnap it.
 
 粒子濾波定位、A* 規劃與路徑跟隨，可綁架機器人看它重新定位。
-
----
-
-## Print-in-place folding stand · 可列印折疊支架
-
-[![Orange 3D-printed folding phone stand](printable-stand/media/og.jpg)](https://0smallcat0.github.io/mechanical-design-demos/printable-stand/configurator.html)
-
-**▶ [Open the configurator · 打開設計器](https://0smallcat0.github.io/mechanical-design-demos/printable-stand/configurator.html)**  ·  [Project page with video and method · 專案頁（影片與方法）](https://0smallcat0.github.io/mechanical-design-demos/printable-stand/)
-
-A phone or tablet stand that prints in one piece with a working hinge. Set the device size and viewing angle; the model, printability checks (watertight, overhang, hinge clearance) and print-time estimate update live, and **Download STL** gives a file ready for the slicer.
-
-一體列印、鉸鏈直接能轉的支架；網頁改尺寸、檢查可印性、下載 STL。
 
 ---
 
