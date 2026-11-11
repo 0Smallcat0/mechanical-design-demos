@@ -7,65 +7,80 @@
 <link rel="icon" href="../favicon.svg">
 <meta name="description" content="The wiring plan of an eight-legged pick-up robot in 3D: send its one-letter commands, watch every pin, step through the bring-up order and see what three wiring mistakes do.">
 <style>
-  :root { --bg:#0f1115; --panel:#171a21; --line:#2a2f3a; --fg:#e8eaf0; --muted:#8a91a1; --accent:#ff7a1a; --ok:#3ecf8e; --bad:#ff4d4f; }
+  :root { --bg:#efe8da; --card:rgba(251,248,241,.92); --line:rgba(40,34,24,.12); --fg:#1d1c19; --muted:#6f6a5f; --accent:#0f6f6a; --hot:#e3622b; --ok:#16855a; --bad:#c8352b;
+          --serif: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, "Times New Roman", serif; --mono: ui-monospace, "Cascadia Code", Consolas, monospace; }
   * { box-sizing: border-box; }
-  html, body { margin: 0; height: 100%; background: var(--bg); color: var(--fg); font: 13px/1.45 system-ui, -apple-system, "Segoe UI", sans-serif; overflow: hidden; }
-  #view { position: absolute; inset: 0 360px 170px 0; }
+  html, body { margin: 0; height: 100%; background: var(--bg); color: var(--fg); font: 13.5px/1.5 "Segoe UI", system-ui, -apple-system, sans-serif; overflow: hidden; }
+  #view { position: absolute; inset: 0; }
   #view canvas { display: block; }
+  .card { background: var(--card); border: 1px solid var(--line); border-radius: 18px; box-shadow: 0 10px 40px rgba(60,45,20,.12), 0 1px 0 rgba(255,255,255,.7) inset; backdrop-filter: blur(14px) saturate(1.1); -webkit-backdrop-filter: blur(14px) saturate(1.1); }
   #labels { position: absolute; inset: 0; pointer-events: none; overflow: hidden; }
-  .lbl { position: absolute; left: 0; top: 0; pointer-events: auto; cursor: pointer; white-space: nowrap; background: #171a21cc; color: #e8eaf0; border: 1px solid #2a2f3a; border-radius: 6px; padding: 1px 7px; font-size: 11px; }
-  .lbl.sel { border-color: var(--accent); color: var(--accent); }
-  #tip { position: absolute; display: none; pointer-events: none; background: #171a21ee; border: 1px solid var(--line); border-radius: 6px; padding: 3px 8px; font-size: 12px; z-index: 6; }
-  #tour { position: absolute; top: 12px; left: 50%; transform: translateX(-50%); z-index: 5; max-width: calc(100% - 24px); text-align: center; background: #171a21e6; border: 1px solid var(--line); border-radius: 999px; padding: 6px 16px; font-size: 13px; cursor: pointer; }
+  .lbl { position: absolute; left: 0; top: 0; pointer-events: auto; cursor: pointer; white-space: nowrap; background: rgba(251,248,241,.94); color: var(--fg); border: 1px solid var(--line); border-radius: 999px; padding: 3px 11px; font-size: 12px; box-shadow: 0 4px 14px rgba(60,45,20,.14); }
+  .lbl.sel { background: var(--fg); color: #fff; }
+  #tip { position: absolute; display: none; pointer-events: none; background: var(--fg); color: #fff; border-radius: 8px; padding: 4px 10px; font-size: 12px; z-index: 6; }
+  #brand { position: absolute; top: 16px; left: 16px; z-index: 4; pointer-events: none; padding: 14px 20px 14px; max-width: 360px; }
+  #brand small { display: block; font: 600 11px/1 var(--mono); letter-spacing: .14em; color: var(--muted); text-transform: uppercase; margin-bottom: 8px; }
+  #brand h1 { font: 500 30px/1.05 var(--serif); margin: 0; letter-spacing: -.01em; }
+  #brand p { margin: 8px 0 0; color: var(--muted); font-size: 13px; }
+  #tour { position: absolute; top: 18px; left: 50%; transform: translateX(-50%); z-index: 5; max-width: calc(100% - 820px); min-width: 260px; text-align: center; padding: 8px 18px; border-radius: 999px; cursor: pointer; }
   #tour:empty { display: none; }
-  #tour b { color: var(--accent); letter-spacing: .06em; font-size: 11px; margin-right: 8px; } #tour span { color: var(--muted); } #tour u { text-decoration: none; display: block; font-size: 16px; font-weight: 600; margin-top: 2px; }
-  #panel { position: absolute; top: 0; right: 0; bottom: 0; width: 360px; background: var(--panel); border-left: 1px solid var(--line); padding: 14px 16px; overflow-y: auto; }
-  #bottom { position: absolute; left: 0; bottom: 0; width: calc(100% - 360px); height: 170px; background: var(--panel); border-top: 1px solid var(--line); display: grid; grid-template-columns: 1fr 1fr; gap: 0; }
-  #bottom > div { padding: 10px 14px; overflow: auto; } #bottom > div + div { border-left: 1px solid var(--line); }
-  #log { margin: 0; font: 12px/1.4 ui-monospace, "Cascadia Code", Consolas, monospace; color: #b9f6ca; white-space: pre-wrap; }
-  h1 { font-size: 15px; margin: 0 0 2px; } h2 { font-size: 11px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); margin: 16px 0 6px; font-weight: 600; }
-  .sub { color: var(--muted); margin: 0 0 6px; }
-  .row { display: flex; gap: 6px; align-items: center; margin: 4px 0; flex-wrap: wrap; }
-  button { background: #222733; color: var(--fg); border: 1px solid var(--line); border-radius: 7px; padding: 5px 9px; font: inherit; cursor: pointer; }
-  button:hover { border-color: var(--accent); } button.on { border-color: var(--accent); color: var(--accent); }
-  #pad { display: grid; grid-template-columns: repeat(4, 1fr); gap: 5px; }
-  .key { display: flex; flex-direction: column; align-items: center; padding: 5px 2px; user-select: none; touch-action: none; }
-  .key b { font: 700 16px ui-monospace, Consolas, monospace; color: var(--accent); } .key span { font-size: 10px; color: var(--muted); }
-  .key.down { background: var(--accent); } .key.down b, .key.down span { color: #111; }
+  #tour b { color: var(--accent); font: 600 11px var(--mono); letter-spacing: .08em; margin-right: 8px; } #tour span { color: var(--muted); font-size: 12px; } #tour u { text-decoration: none; display: block; font: 500 18px/1.25 var(--serif); margin-top: 2px; }
+  #panel { position: absolute; top: 16px; right: 16px; bottom: 16px; width: 356px; padding: 18px 18px 14px; overflow-y: auto; }
+  #panel::-webkit-scrollbar { width: 8px; } #panel::-webkit-scrollbar-thumb { background: rgba(0,0,0,.12); border-radius: 8px; }
+  #bottom { position: absolute; left: 16px; bottom: 16px; width: min(760px, calc(100% - 404px)); height: 122px; display: grid; grid-template-columns: 1.2fr 1fr; overflow: hidden; }
+  #bottom > div { padding: 12px 16px; overflow: auto; } #bottom > div + div { border-left: 1px solid var(--line); }
+  #logwrap { background: #1d1c19; margin: 8px; border-radius: 12px; padding: 10px 12px !important; }
+  #logwrap h2 { color: #a9a395 !important; }
+  #log { margin: 0; font: 12px/1.45 var(--mono); color: #c8f2d4; white-space: pre-wrap; }
+  .ph { font: 500 21px/1.15 var(--serif); margin: 0 0 4px; }
+  h2 { font: 600 10.5px var(--mono); letter-spacing: .12em; text-transform: uppercase; color: var(--muted); margin: 18px 0 8px; }
+  .sub { color: var(--muted); margin: 0 0 4px; }
+  .row { display: flex; gap: 6px; align-items: center; margin: 5px 0; flex-wrap: wrap; }
+  button { background: rgba(255,255,255,.75); color: var(--fg); border: 1px solid var(--line); border-radius: 999px; padding: 5px 12px; font: inherit; font-size: 12.5px; cursor: pointer; transition: background .15s, border-color .15s; }
+  button:hover { border-color: rgba(0,0,0,.3); } button.on { background: var(--fg); border-color: var(--fg); color: #fff; }
+  #pad { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; }
+  .key { display: flex; flex-direction: column; align-items: center; padding: 6px 2px 5px; border-radius: 12px; user-select: none; touch-action: none; background: #fff; }
+  .key b { font: 700 17px var(--mono); color: var(--fg); } .key span { font-size: 10px; color: var(--muted); }
+  .key.down { background: var(--accent); border-color: var(--accent); } .key.down b, .key.down span { color: #fff; }
   table { width: 100%; border-collapse: collapse; font-variant-numeric: tabular-nums; }
-  #pins td { padding: 1px 0; } #pins tr { cursor: pointer; } #pins tr:hover td { color: var(--accent); }
-  #pins td.p { width: 34px; font-family: ui-monospace, Consolas, monospace; } #pins td.n { color: var(--muted); } #pins td.v { width: 72px; text-align: right; font-family: ui-monospace, Consolas, monospace; font-size: 11px; }
-  #pins td.bar { width: 70px; padding: 0 8px; } #pins td.bar i { display: block; height: 6px; background: var(--accent); border-radius: 3px; width: 0; transition: width .08s; }
-  .conn td { padding: 1px 4px 1px 0; font-family: ui-monospace, Consolas, monospace; font-size: 11px; color: #c9cedb; }
-  #info p, #stepbox p { margin: 3px 0 6px; color: #c9cedb; }
+  #pins td { padding: 1.5px 0; border-bottom: 1px solid rgba(0,0,0,.04); } #pins tr { cursor: pointer; } #pins tr:hover td { color: var(--accent); }
+  #pins td.p { width: 36px; font: 600 12px var(--mono); } #pins td.n { color: var(--muted); font-size: 12.5px; } #pins td.v { width: 74px; text-align: right; font: 11px var(--mono); }
+  #pins td.bar { width: 64px; padding: 0 8px; } #pins td.bar i { display: block; height: 5px; background: var(--hot); border-radius: 3px; width: 0; transition: width .08s; }
+  .conn td { padding: 1px 4px 1px 0; font: 11px var(--mono); color: #4a463d; }
+  #info p, #stepbox p { margin: 3px 0 6px; color: #4a463d; }
+  #info b, #stepbox b { font: 500 15px var(--serif); }
   .hint { color: var(--muted); font-size: 12px; }
-  .fault { display: block; margin: 3px 0; cursor: pointer; }
+  .fault { display: block; margin: 4px 0; cursor: pointer; }
+  input[type=checkbox] { accent-color: var(--accent); }
   .ok { color: var(--ok); font-weight: 600; } .bad { color: var(--bad); font-weight: 600; }
-  #rail p { color: #ffb4b4; margin: 4px 0 0; }
-  #legend span { display: inline-block; margin-right: 10px; } #legend i { display: inline-block; width: 10px; height: 10px; border-radius: 2px; margin-right: 4px; vertical-align: -1px; }
-  kbd { font: 600 11px ui-monospace, Consolas, monospace; border: 1px solid var(--line); border-radius: 4px; padding: 0 4px; color: var(--accent); }
-  #cap { display: none; position: absolute; z-index: 10; left: 56px; bottom: 52px; max-width: 1040px; padding: 18px 26px 20px; background: rgba(255,255,255,.9); border-radius: 16px; box-shadow: 0 8px 30px rgba(0,0,0,.12); }
-  #cap .t { font-size: 44px; font-weight: 700; letter-spacing: -.01em; color: #111; }
-  #cap .s { font-size: 24px; color: #333; margin-top: 6px; max-width: 900px; }
-  body.clean #panel, body.clean #bottom, body.clean #tour, body.clean #labels { display: none; } body.clean #view { inset: 0; }
-  body.film #panel, body.film #bottom, body.film #tour, body.film #labels { display: none; } body.film #view { inset: 0; } body.film #cap { display: block; }
+  #rail p { color: var(--bad); margin: 4px 0 0; }
+  #legend span { display: inline-block; margin-right: 10px; } #legend i { display: inline-block; width: 10px; height: 10px; border-radius: 3px; margin-right: 4px; vertical-align: -1px; }
+  kbd { font: 600 11px var(--mono); border: 1px solid var(--line); background: #fff; border-radius: 5px; padding: 0 5px; color: var(--fg); }
+  #cap { display: none; position: absolute; z-index: 10; left: 56px; bottom: 52px; max-width: 1080px; padding: 20px 28px 22px; background: rgba(251,248,241,.94); border-radius: 22px; box-shadow: 0 12px 40px rgba(60,45,20,.16); }
+  #cap .t { font: 500 50px/1.08 var(--serif); letter-spacing: -.01em; color: #1d1c19; }
+  #cap .s { font-size: 24px; color: #4a463d; margin-top: 8px; max-width: 940px; }
+  body.clean #panel, body.clean #bottom, body.clean #tour, body.clean #labels, body.clean #brand { display: none; }
+  body.film #panel, body.film #bottom, body.film #tour, body.film #labels, body.film #brand { display: none; } body.film #cap { display: block; }
+  @media (max-width: 1250px) { #brand p { display: none; } #tour { max-width: calc(100% - 420px); left: calc(50% - 186px); } }
   @media (max-width: 900px) {
     html, body { height: auto; overflow: auto; }
     body { display: flex; flex-direction: column; }
-    #view { position: relative; inset: auto; width: 100%; height: 58vh; order: 1; flex: none; }
-    #bottom { position: relative; width: 100%; height: 160px; order: 3; }
-    #panel { position: static; width: 100%; order: 2; border-left: 0; overflow: visible; }
-    #tour { top: 8px; padding: 4px 12px; white-space: nowrap; } #tour span { display: none; } #tour u { font-size: 14px; display: inline; margin: 0; }
+    #view { position: relative; inset: auto; width: 100%; height: 60vh; order: 1; flex: none; }
+    #brand { top: 12px; left: 14px; } #brand h1 { font-size: 22px; } #brand small { display: none; }
+    #bottom { position: relative; left: auto; right: auto; bottom: auto; margin: 10px; height: 170px; order: 3; }
+    #panel { position: static; width: auto; margin: 10px 10px 0; order: 2; overflow: visible; }
+    #tour { top: auto; bottom: 10px; left: 50%; max-width: calc(100% - 20px); white-space: nowrap; } #tour span { display: none; } #tour u { font-size: 14px; display: inline; margin: 0; }
   }
 </style>
 <script type="importmap">{ "imports": { "three": "./vendor/three.module.min.js" } }</script>
 </head>
 <body>
-<div id="view"><div id="labels"></div><div id="tip"></div><div id="tour"></div></div>
+<div id="view"><div id="labels"></div><div id="tip"></div><div id="tour" class="card"></div>
+  <div id="brand" class="card"><small>Engineering demos · Pick-up robot</small><h1>Pick-up robot<br>electronics</h1><p>Every board is generated in code. Hold a key to drive the robot and watch its pins.</p></div></div>
 <div id="cap"><div class="t"></div><div class="s"></div></div>
-<aside id="panel">
-  <h1>Pick-up robot · electronics</h1>
-  <p class="sub">The robot's wiring plan and control logic. Hold a key to drive it; keys on your keyboard work too.</p>
+<aside id="panel" class="card">
+  <p class="ph">Drive it</p>
+  <p class="sub">The robot's wiring plan and control logic. Hold a key; your keyboard works too.</p>
 
   <h2>Send a command over Bluetooth</h2>
   <div id="pad"></div>
@@ -77,7 +92,7 @@
   <table id="pins"></table>
 
   <h2>View</h2>
-  <div class="row"><button data-view="all" class="on">Everything</button><button data-view="signal">Signals</button><button data-view="power">Power rails</button><button id="labelsBtn" class="on">Labels</button></div>
+  <div class="row"><button data-view="all" class="on">Everything</button><button data-view="signal">Signals</button><button data-view="power">Power rails</button><button id="labelsBtn">Labels</button></div>
   <div id="legend" style="display:none" class="hint"><span><i style="background:#ff3b30"></i>Battery A · motors</span><span><i style="background:#af52de"></i>Battery B</span><span><i style="background:#ffb300"></i>5.0 V logic</span><span><i style="background:#34c759"></i>Servo 5–6 V</span><span><i style="background:#1e1e20;border:1px solid #555"></i>Ground</span></div>
 
   <h2>Bring-up order</h2>
@@ -91,8 +106,8 @@
   <div id="info"></div>
   <p class="hint">Mouse: left-drag orbit, right-drag pan, wheel zoom. Hover a wire to read it.</p>
 </aside>
-<div id="bottom">
-  <div><h2 style="margin-top:0">Serial monitor · 9600 baud</h2><pre id="log"></pre></div>
+<div id="bottom" class="card">
+  <div id="logwrap"><h2 style="margin-top:0">Serial monitor · 9600 baud</h2><pre id="log"></pre></div>
   <div><h2 style="margin-top:0">Power check</h2><div id="rail"></div></div>
 </div>
 <script type="module" src="js/app.js"></script>
