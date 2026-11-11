@@ -97,9 +97,7 @@ The pick-up robot's electronics, wired as in its wiring plan, every board genera
 
 ---
 
-## What our capstone robots could not do yet · 專題機器人還做不到的事
-
-The pick-up robot was driven by hand from a gamepad and the EV3 followed a line on the floor. Each simulation below works out one thing they would need to run on their own.
+## Robotics and control simulations · 機器人與控制模擬
 
 ### 6-DOF arm: inverse kinematics and motion planning · 六軸手臂逆運動學與路徑規劃
 
@@ -107,7 +105,7 @@ The pick-up robot was driven by hand from a gamepad and the EV3 followed a line 
 
 **▶ [Open the app · 打開互動頁](https://0smallcat0.github.io/mechanical-design-demos/robot-arm-planning/live.html)**  ·  [Project page with video and method · 專案頁（影片與方法）](https://0smallcat0.github.io/mechanical-design-demos/robot-arm-planning/)
 
-The capstone arm was moved axis by axis from the gamepad; this one solves its own joints. Drag a target and the arm follows by inverse kinematics; **Plan to target** finds a collision-free path around obstacles (RRT-Connect) and turns it into a smooth trajectory. Tested on 1,000 random poses (worst error 0.01 mm) and 20 planning seeds (all collision-free).
+A factory arm moving a part must reach the exact spot without hitting anything on the way. Drag a target and the arm follows by inverse kinematics; **Plan to target** finds a collision-free path around obstacles (RRT-Connect) and turns it into a smooth trajectory. Tested on 1,000 random poses (worst error 0.01 mm) and 20 planning seeds (all collision-free).
 
 手臂逆運動學與避障路徑規劃，拖曳目標即時解。
 
@@ -119,7 +117,7 @@ The capstone arm was moved axis by axis from the gamepad; this one solves its ow
 
 **▶ [Open the app · 打開互動頁](https://0smallcat0.github.io/mechanical-design-demos/inverted-pendulum-control/live.html)**  ·  [Project page with video and method · 專案頁（影片與方法）](https://0smallcat0.github.io/mechanical-design-demos/inverted-pendulum-control/)
 
-The EV3 held its line with a plain proportional controller; this compares what comes after it. Three controllers balance the same nonlinear cart-pole side by side. Push a cart, add sensor noise or make the pole heavier and see which one holds. Over 2,000 randomized runs: PD + cart loop survives 80%, LQR 84%, RL 82%; hard cases show where each one fails.
+Self-balancing robots fall over without the right feedback controller. Three controllers balance the same nonlinear cart-pole side by side. Push a cart, add sensor noise or make the pole heavier and see which one holds. Over 2,000 randomized runs: PD + cart loop survives 80%, LQR 84%, RL 82%; hard cases show where each one fails.
 
 PD、LQR、強化學習三種控制器同場比較，可推車、加雜訊、改擺桿。
 
@@ -131,7 +129,7 @@ PD、LQR、強化學習三種控制器同場比較，可推車、加雜訊、改
 
 **▶ [Open the app · 打開互動頁](https://0smallcat0.github.io/mechanical-design-demos/mobile-robot-localization/live.html)**  ·  [Project page with video and method · 專案頁（影片與方法）](https://0smallcat0.github.io/mechanical-design-demos/mobile-robot-localization/)
 
-The pick-up robot only reached a part because a person steered it there; this one finds its own way. A differential-drive robot finds where it is from simulated lidar (particle filter), plans with A* and drives with pure pursuit. In 200 simulated runs it always found itself (median 7.9 s), tracks within about 5 cm, and recovered from 191 of 200 kidnaps. Click to set goals, drop boxes in its way, or kidnap it.
+A warehouse robot has to know where it is before it can fetch anything. A differential-drive robot finds where it is from simulated lidar (particle filter), plans with A* and drives with pure pursuit. In 200 simulated runs it always found itself (median 7.9 s), tracks within about 5 cm, and recovered from 191 of 200 kidnaps. Click to set goals, drop boxes in its way, or kidnap it.
 
 粒子濾波定位、A* 規劃與路徑跟隨，可綁架機器人看它重新定位。
 
