@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Pick-up robot electronics: interactive wiring · 取物機器人電控接線</title>
+<link rel="stylesheet" href="../style.css">
+<meta property="og:title" content="Pick-up robot electronics: interactive wiring">
+<meta property="og:description" content="The real wiring and firmware of a walking pick-up robot in 3D: drive it, watch every pin, and see what three wiring mistakes do.">
+<meta property="og:image" content="https://0smallcat0.github.io/mechanical-design-demos/robot-electronics/media/og.jpg">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" href="../favicon.svg">
+<style> code { font-family: ui-monospace, "Cascadia Code", Consolas, monospace; font-size: 15px; } </style>
+</head>
+<body>
+<header>
+  <a href="../">&larr; All demos · 所有作品</a>
+  <h1>Pick-up robot electronics · 取物機器人電控接線</h1>
+  <p class="lede">The electronics of my <a href="../walking-pick-robot/">eight-legged pick-up robot</a>, wire for wire: an Arduino Uno, two L298N motor drivers, four servos, Bluetooth and three power supplies. Send it the robot's own commands and watch every pin respond.</p>
+  <p class="lede">機械專題取物機器人的實際接線與控制邏輯，可以下指令、看每個腳位、試三種接錯的後果。</p>
+  <video src="tour.mp4" autoplay muted loop playsinline preload="auto" poster="media/hero.jpg"></video>
+  <p style="margin:18px 0 0"><a class="button" href="live.html" style="font-size:19px;padding:14px 28px">Open the interactive model</a></p>
+</header>
+
+<main>
+<section>
+  <h2>What you can do</h2>
+  <table>
+    <tr><th>Drive it</th><td>Hold <code>F</code>, <code>U</code>, <code>A</code>… The command goes over Bluetooth into D2, the pins switch, the H-bridges turn the motors and the servos spin. The serial monitor prints what the firmware prints.</td></tr>
+    <tr><th>Lose the link</th><td>Turn off the 250 ms re-send and hold a key: 500 ms after the last command the firmware stops that motion on its own.</td></tr>
+    <tr><th>Follow the power</th><td>Colour the wires by supply: battery A only feeds the motor drivers, battery B feeds the logic through a 5.0 V buck converter and the servos through their own BEC, and every ground meets.</td></tr>
+    <tr><th>Bring it up</th><td>Step through the bring-up order from the wiring plan, one part at a time, from USB only to the radio last.</td></tr>
+    <tr><th>Wire it wrong</th><td>Power the servos from the Uno, leave out the common ground, or put the motor battery on the 5 V rail, and watch the result.</td></tr>
+  </table>
+</section>
+
+<section>
+  <h2>Checked against the robot's code</h2>
+  <table>
+    <tr><th>Pins and settings</th><td>17 / 17 pin assignments and 15 / 15 speed, timing and direction constants match the robot's control program</td></tr>
+    <tr><th>Commands</th><td>All 30 command characters handled; 14 motion commands give the right motor and servo direction; 8 stop commands stop what they should</td></tr>
+    <tr><th>Fail-safe</th><td>A single command stops at exactly 500 ms; re-sent every 250 ms it runs 5 s without a gap; each motion group times out on its own</td></tr>
+    <tr><th>Power check</th><td>50 wires: motor, logic and servo supplies never touch, one common ground. Each of the three mistakes is flagged.</td></tr>
+  </table>
+  <p>Reproduce with <code>node tests/test.mjs path/to/control.ino</code> (<a href="tests/test.mjs">source</a>; 94 checks).</p>
+</section>
+
+<section>
+  <h2>How it is built</h2>
+  <p>Every board, chip, connector and wire is generated in code with three.js: no 3D files, no photos. Board sizes follow the standard module outlines (Uno 68.6 × 53.3 mm, L298N 43 × 43 mm). I led the team and did the electronics: choosing the parts, the wiring and power split, and testing the bring-up step by step.</p>
+  <ul>
+    <li><a href="js/net.js">net.js</a>: the wiring list, the power check and the firmware's command handling</li>
+    <li><a href="js/boards.js">boards.js</a>: the boards, modules, motors, servos and batteries</li>
+    <li><a href="js/app.js">app.js</a>: the 3D view, controls and tour</li>
+  </ul>
+  <p>three.js is MIT-licensed (<a href="vendor/three-LICENSE.txt">licence</a>).</p>
+</section>
+</main>
+</body>
+</html>
