@@ -436,7 +436,7 @@ export function unoStack() {
   for (let i = 0; i <= 5; i++) s.text(String(i), axx(i), aZ.G - 2.7, 1.5);
   for (const k of ['S', 'V', 'G']) s.text(k, axx(5) + 3.0, aZ[k], 1.5);
   s.text('ANALOG IN', axx(2.5), aZ.G - 4.9, 1.5);
-  s.text('Sensor Shield V5.0', -2, 2.5, 3.6, { weight: 800, font: 'Georgia, "Times New Roman", serif' });
+  s.text('Sensor Shield V5.0', 8, -8.6, 3.3, { weight: 800, font: 'Georgia, "Times New Roman", serif' });
   s.text('DIGITAL', dx(6.5), rowZ.G + 4.9, 1.5);
   s.text('IIC', -26 + 1.5 * P, 1.0, 1.4); s.text('BLUETOOTH', -26 + 1.5 * P, 15.0, 1.4);
   s.text('RESET', 26, 13.4, 1.3); s.text('5V GND', -12 + P / 2, D / 2 - 4.4, 1.3);
@@ -673,23 +673,24 @@ export function gearMotor() {
 
 // ---------------------------------------------------------------- 2-cell battery holder
 const wrapCache = {};
-function wrapTex(color) {
-  if (wrapCache[color]) return wrapCache[color];
+function wrapTex(color, flip = false) {
+  const key = color + (flip ? '/f' : '');
+  if (wrapCache[key]) return wrapCache[key];
   // u runs around the cell, v along its length: print the text along v
   const c = document.createElement('canvas'); c.width = 256; c.height = 1024; const g = c.getContext('2d');
   g.fillStyle = color; g.fillRect(0, 0, 256, 1024);
   g.fillStyle = 'rgba(255,255,255,.16)'; g.fillRect(0, 70, 256, 10); g.fillRect(0, 944, 256, 10);
   g.fillStyle = 'rgba(255,255,255,.88)'; g.font = '700 46px Arial'; g.textAlign = 'center'; g.textBaseline = 'middle';
-  for (const u of [64, 192]) { g.save(); g.translate(u, 512); g.rotate(-Math.PI / 2); g.scale(-1, -1); g.fillText('Li-ion  RECHARGEABLE', 0, 0); g.restore(); }
-  const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; t.anisotropy = 8; return (wrapCache[color] = t);
+  for (const u of [64, 192]) { g.save(); g.translate(u, 512); g.rotate(flip ? -Math.PI / 2 : Math.PI / 2); g.fillText('Li-ion  RECHARGEABLE', 0, 0); g.restore(); }
+  const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; t.anisotropy = 8; return (wrapCache[key] = t);
 }
-export function battery(name, cellMat) {
+export function battery(name, cellMat, flip = false) {   // flip: the holder is placed turned round, keep the print readable
   const g = new THREE.Group(); const pins = {};
   const holder = std(0x1a1a1c, { roughness: 0.7 });
   rbox(g, 77, 2.4, 42, holder, 0, 0, 0, 2, 0.6);
   for (const s of [-1, 1]) { rbox(g, 77, 15, 1.6, holder, 0, 0, s * 20.2, 0.6, 0.4); rbox(g, 2.4, 15, 42, holder, s * 37.3, 0, 0, 0.6, 0.4); }
   rbox(g, 73, 6, 1.4, holder, 0, 2.4, 0, 0.5, 0.4);
-  const wrap = new THREE.MeshPhysicalMaterial({ map: wrapTex('#' + cellMat.color.getHexString()), roughness: 0.25, clearcoat: 0.9, clearcoatRoughness: 0.15 });
+  const wrap = new THREE.MeshPhysicalMaterial({ map: wrapTex('#' + cellMat.color.getHexString(), flip), roughness: 0.25, clearcoat: 0.9, clearcoatRoughness: 0.15 });
   for (const z of [-10, 10]) {
     const cell = new THREE.Mesh(new THREE.CylinderGeometry(9.1, 9.1, 64, 40, 1, true), wrap);
     cell.rotation.set(z > 0 ? Math.PI : 0, 0, Math.PI / 2); cell.position.set(-1, 11.6, z); cell.castShadow = cell.receiveShadow = true; g.add(cell);

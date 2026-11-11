@@ -100,10 +100,10 @@ place('mRot', gearMotor(), -215, 30, Math.PI);
 place('mLift', gearMotor(), -215, 86, Math.PI);
 ['sv1', 'sv2', 'sv3', 'sv4'].forEach((id, i) => place(id, servo(id), 112, -62 + i * 36));
 place('bus', servoBus(), 70, 82);
-place('bec', bec(), 128, 112);
+place('bec', bec(), 44, 106);
 place('buck', lm2596(), -18, 82);
 place('batA', battery('BATTERY A · MOTORS', MAT.cellBlue()), -100, 140);
-place('batB', battery('BATTERY B · LOGIC', MAT.cellGreen()), 40, 150);
+place('batB', battery('BATTERY B · LOGIC', MAT.cellGreen(), true), 40, 150, Math.PI);
 
 function pinWorld(ref) {
   const [id, ...rest] = ref.split('.');
@@ -139,29 +139,77 @@ const HOUSING = (() => { const g = new THREE.BoxGeometry(2.45, 12, 2.45); g.tran
 const HOUSING_MAT = new THREE.MeshPhysicalMaterial({ color: 0x141416, roughness: 0.45, clearcoat: 0.3 });
 const TIP = new THREE.SphereGeometry(1.0, 12, 8);
 const TIP_MAT = new THREE.MeshStandardMaterial({ color: 0xc77b45, metalness: 1, roughness: 0.35 });
+// Wires are routed as harnesses: every wire between the same two parts runs side by side as a flat
+// ribbon (signal) or a twisted pair (power, motor), fans out only at its ends, and sits in its own height layer.
+const UP = new THREE.Vector3(0, 1, 0);
+const partOf = ref => { const id = ref.split('.')[0]; return id === 'uno' ? 'shield' : id; };
+function exitPts(ref, P) {
+  if (P.dir) return [P, P.clone().addScaledVector(P.dir, 6).add(new THREE.Vector3(0, 1.2, 0))];   // screw terminal: out sideways
+  if (/^(shield|uno|bus)\./.test(ref) || /^l[12]\.(ENA|IN\d|ENB)$/.test(ref)) return [P, P.clone().add(new THREE.Vector3(0, 13, 0))];   // dupont: straight up out of the housing
+  return [P, P.clone().add(new THREE.Vector3(0, 4, 0))];
+}
 function buildWires() {
   for (const w of wires) { wireGroup.remove(w.mesh); w.mesh.geometry.dispose(); if (w.plug) w.plug.forEach(p => wireGroup.remove(p)); }
   wires = [];
   const list = wiresFor(faults);
+  // group by the pair of parts (the four servo signals form one ribbon)
+  const groups = new Map();
+  list.forEach((w, i) => {
+    const [a, b, kind, , tag] = w;
+    let pa = partOf(a), pb = partOf(b);
+    if (/^sv\d$/.test(pb) && kind === 'sig') pb = 'sv';
+    const key = /^fault:/.test(tag || '') ? 'fault' + i : [pa, pb].sort().join('|');
+    const A = pinWorld(a), B = pinWorld(b);
+    const m = { w, i, A, B, ea: exitPts(a, A), eb: exitPts(b, B).reverse() };
+    if (!groups.has(key)) groups.set(key, []); groups.get(key).push(m);
+  });
+  const geo = new Map();
+  [...groups.values()].forEach((ms, gi) => {
+    const n = ms.length;
+    const cA = new THREE.Vector3(), cB = new THREE.Vector3();
+    ms.forEach(m => { cA.add(m.ea[m.ea.length - 1]); cB.add(m.eb[0]); }); cA.divideScalar(n); cB.divideScalar(n);
+    const dirH = cB.clone().sub(cA); dirH.y = 0; const L = Math.max(1, dirH.length()); dirH.normalize();
+    const perp = new THREE.Vector3().crossVectors(UP, dirH).normalize();
+    const spread = (pts, c) => Math.max(0, ...pts.map(p => Math.hypot(p.x - c.x, p.z - c.z)));
+    const backA = Math.min(L * 0.3, Math.max(7, spread(ms.map(m => m.ea[m.ea.length - 1]), cA) * 0.9 + 5));
+    const backB = Math.min(L * 0.3, Math.max(7, spread(ms.map(m => m.eb[0]), cB) * 0.9 + 5));
+    const sA = cA.clone().addScaledVector(dirH, backA), sB = cB.clone().addScaledVector(dirH, -backB);
+    const top = Math.max(cA.y, cB.y);
+    sA.y = top + 3; sB.y = top + 3;
+    const fanned = [...groups.keys()][gi].startsWith('bus|sv');   // the four servo power leads run as one flat layer
+    const hump = fanned ? 3 + L * 0.06 : 6 + L * 0.11 + (gi % 4) * 2.2;
+    const heavyGroup = ms.every(m => ['p+', 'gnd', 'mot'].includes(m.w[2]));
+    const twisted = false;   // pairs run side by side like bonded two-core lead (twisting read as clutter)
+    const r = heavyGroup ? 0.8 : 0.55;
+    const pitch = twisted ? 0 : 2 * r + 0.12;
+    // order across the ribbon by where each wire starts and ends, so ribbons do not cross themselves
+    ms.sort((p, q) => (p.A.clone().add(p.B).dot(perp)) - (q.A.clone().add(q.B).dot(perp)));
+    ms.forEach((m, k) => {
+      const off = (k - (n - 1) / 2) * pitch;
+      const pts = [...m.ea];
+      const N = twisted ? Math.max(8, Math.round(L / 5)) : 6;
+      for (let j = 0; j <= N; j++) {
+        const t = j / N;
+        const c = sA.clone().lerp(sB, t); c.y += hump * 4 * t * (1 - t);
+        if (twisted) { const ph = t * L / 9 * Math.PI * 2 + k * Math.PI; c.addScaledVector(perp, Math.cos(ph) * r * 1.05).addScaledVector(UP, Math.sin(ph) * r * 1.05); }
+        else c.addScaledVector(perp, off);
+        pts.push(c);
+      }
+      pts.push(...m.eb);
+      geo.set(m.i, { curve: new THREE.CatmullRomCurve3(pts, false, 'centripetal'), r, L });
+    });
+  });
   list.forEach((w, i) => {
     const [a, b, kind, text, tag] = w;
     const A = pinWorld(a), B = pinWorld(b);
-    const d = A.distanceTo(B);
-    const h = 14 + d * 0.16 + (i % 5) * 1.8;
-    const lift = (P, other) => { const v = P.clone(); v.y += h * 0.55; v.lerp(other, 0.06); return v; };
-    const out = P => (P.dir ? [P, P.clone().addScaledVector(P.dir, 7).add(new THREE.Vector3(0, 1.5, 0))] : [P]);
-    const mid = A.clone().lerp(B, 0.5); mid.y = Math.max(A.y, B.y) + h;
-    const a0 = out(A), b0 = out(B).reverse();
-    const curve = new THREE.CatmullRomCurve3([...a0, lift(a0[a0.length - 1], B), mid, lift(b0[0], A), ...b0], false, 'centripetal');
+    const { curve, r, L } = geo.get(i);
     let color = KIND_COLOR[kind];
     if (kind === 'mot') color = /OUT[13]/.test(a) ? 0xd8302a : 0x1e1e20;
     if (/^fault:/.test(tag || '')) color = 0xff2bd6;
     if (kind === 'sig' && /sv\d/.test(b)) color = 0xf08a24;
     if (kind === 'sig' && /l2/.test(b)) color = 0x2fd18b;
     const mat = new THREE.MeshPhysicalMaterial({ color, roughness: 0.38, metalness: 0, clearcoat: 0.5, clearcoatRoughness: 0.35, emissive: color, emissiveIntensity: 0 });
-    const heavy = kind === 'p+' || kind === 'gnd' || kind === 'mot';
-    const r = heavy ? 0.8 : 0.55;
-    const mesh = new THREE.Mesh(new THREE.TubeGeometry(curve, 96, r, 10, false), mat);
+    const mesh = new THREE.Mesh(new THREE.TubeGeometry(curve, Math.min(260, 90 + Math.round(L * 0.9)), r, 10, false), mat);
     mesh.receiveShadow = true;
     mesh.castShadow = true; mesh.userData.wire = wires.length;
     wireGroup.add(mesh);
@@ -395,6 +443,7 @@ const TOUR = [
 ];
 let tour = FILM || !(qs.has('notour') || CLEAN) ? { i: -1, t0: 0, from: null } : null;
 function stopTour() {
+  if (!FILM) finishIntro();
   if (!tour || FILM) return;
   tour = null; tourEl.innerHTML = '<b>TOUR</b><u>Replay the tour</u>'; held.clear();
   document.querySelectorAll('.key.down').forEach(k => k.classList.remove('down'));
@@ -418,6 +467,36 @@ function tourStep(now) {
   const k = Math.min(1, (now - tour.t0) / 1600); const e = k * k * (3 - 2 * k);
   camera.position.lerpVectors(tour.from[0], s.cam[0], e);
   controls.target.lerpVectors(tour.from[1], s.cam[1], e);
+}
+
+// ---------------------------------------------------------------- opening: the bench assembles itself
+const INTRO_ORDER = ['batA', 'batB', 'shield', 'buck', 'bec', 'bus', 'l1', 'l2', 'hc05', 'mWL', 'mWR', 'mRot', 'mLift', 'sv1', 'sv2', 'sv3', 'sv4'];
+const INTRO_PART = 0.12, INTRO_DROP = 0.55, INTRO_WIRE = 0.035, INTRO_GROW = 0.6;
+const introBase = Object.fromEntries(INTRO_ORDER.map(id => [id, parts[id].group.position.y]));
+let intro = (CLEAN || qs.has('nointro')) ? null : { t0: null };
+if (intro) TOUR[0].d = 7;
+function finishIntro() {
+  if (!intro) return;
+  intro = null;
+  for (const id of INTRO_ORDER) { parts[id].group.visible = true; parts[id].group.position.y = introBase[id]; }
+  for (const w of wires) w.mesh.geometry.setDrawRange(0, Infinity);
+}
+function introApply(dt) {
+  if (!intro) return;
+  if (intro.t0 == null) intro.t0 = clockNow();
+  const t = (clockNow() - intro.t0) / 1000;   // same clock as the tour, so a slow frame cannot desync them
+  INTRO_ORDER.forEach((id, k) => {
+    const u = Math.min(1, Math.max(0, (t - k * INTRO_PART) / INTRO_DROP)), e = 1 - (1 - u) ** 3;
+    const g = parts[id].group; g.visible = u > 0; g.position.y = introBase[id] + 70 * (1 - e);
+  });
+  const w0 = INTRO_ORDER.length * INTRO_PART + 0.45;
+  wires.forEach((w, k) => {
+    const u = Math.min(1, Math.max(0, (t - w0 - k * INTRO_WIRE) / INTRO_GROW)), e = 1 - (1 - u) ** 2;
+    const n = w.mesh.geometry.index.count;
+    w.mesh.geometry.setDrawRange(0, Math.floor(n * e / 3) * 3);
+    if (u === 0) { w.mesh.visible = false; w.plug.forEach(p => p.visible = false); }
+  });
+  if (t > w0 + wires.length * INTRO_WIRE + INTRO_GROW) finishIntro();
 }
 
 // ---------------------------------------------------------------- frame loop
@@ -518,6 +597,7 @@ function loop() {
     w.mat.emissiveIntensity = dim ? 0 : (viewMode === 'power' ? 0.35 : lvl * 1.8) + (w.fault ? 0.4 + 0.4 * Math.sin(now / 150) : 0);
   }
   for (const id of Object.keys(parts)) if (id !== 'uno') setPartOpacity(id, partVisible(id));
+  introApply(dt);
 
   // serial packet dot
   dot.visible = false;
