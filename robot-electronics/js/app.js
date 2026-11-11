@@ -1,6 +1,7 @@
 import * as THREE from 'three';
 import { OrbitControls } from '../vendor/OrbitControls.js';
 import { unoStack, l298n, hc05, lm2596, bec, servoBus, servo, gearMotor, battery, MAT } from './boards.js';
+import { probes, usbCable, screwdriver } from './props.js';
 import { COMPONENTS, FAULTS, BRINGUP, TUNING, PINS, Firmware, hardware, pinLevel, railCheck, wiresFor } from './net.js';
 
 const qs = new URLSearchParams(location.search);
@@ -104,6 +105,8 @@ place('bec', bec(), 44, 106);
 place('buck', lm2596(), -18, 82);
 place('batA', battery('BATTERY A · MOTORS', MAT.cellBlue()), -100, 140);
 place('batB', battery('BATTERY B · LOGIC', MAT.cellGreen(), true), 40, 150, Math.PI);
+// bench props (scenery only, not in the circuit)
+for (const [o, x, z, ry] of [[probes(), -60, -134, 0.08], [usbCable(), -10, 180, 0], [screwdriver(), -305, 200, 0.22]]) { o.position.x = x; o.position.z = z; o.rotation.y = ry; scene.add(o); }
 
 function pinWorld(ref) {
   const [id, ...rest] = ref.split('.');
@@ -231,9 +234,11 @@ buildWires();
 // ---------------------------------------------------------------- labels over parts
 const labelsEl = document.getElementById('labels');
 const LABEL_OFFSET = { shield: 32, hc05: 10, l1: 34, l2: 34, mWL: 30, mWR: 30, mRot: 30, mLift: 30, sv1: 36, sv2: 36, sv3: 36, sv4: 36, bus: 14, bec: 16, buck: 18, batA: 28, batB: 28 };
+const PART_LIST = ['shield', 'hc05', 'l1', 'l2', 'mWL', 'mWR', 'mRot', 'mLift', 'sv1', 'sv2', 'sv3', 'sv4', 'bus', 'bec', 'buck', 'batA', 'batB'];
+const partName = id => (id === 'shield' ? 'Uno + Sensor Shield V5' : COMPONENTS[id].name);
 const labelEls = {};
 for (const id of Object.keys(LABEL_OFFSET)) {
-  const el = document.createElement('div'); el.className = 'lbl'; el.textContent = id === 'shield' ? 'Uno + Sensor Shield V5' : COMPONENTS[id].name;
+  const el = document.createElement('div'); el.className = 'lbl'; el.textContent = `${PART_LIST.indexOf(id) + 1} · ${partName(id)}`;
   el.onclick = () => select(id); labelsEl.appendChild(el); labelEls[id] = el;
 }
 let showLabels = false, hoverId = null;
@@ -336,12 +341,29 @@ function select(id, quiet) {
   wireFocus = null; pinFocus = null;
   if (id === 'uno') id = 'shield';
   selected = selected === id ? null : id;
+  partsEl.querySelectorAll('li').forEach(li => li.classList.toggle('on', li.dataset.id === selected));
   if (!selected) { info.innerHTML = '<span class="hint">Click a board, module or wire to see what it does and where it connects.</span>'; return; }
   const ids = selected === 'shield' ? ['uno', 'shield'] : [selected];
   const rows = wires.filter(w => ids.some(i => w.a.startsWith(i + '.') || w.b.startsWith(i + '.')));
   info.innerHTML = ids.map(i => `<b>${COMPONENTS[i].name}</b><p>${COMPONENTS[i].role}</p>`).join('') +
     `<table class="conn">${rows.map(w => `<tr><td>${w.a.replace(/^(\w+)\./, (m, p) => short(p))}</td><td>→</td><td>${w.b.replace(/^(\w+)\./, (m, p) => short(p))}</td></tr>`).join('')}</table>`;
 }
+// fly the camera to a part, keeping roughly the current viewing angle
+let fly = null;
+function flyTo(id) {
+  const box = new THREE.Box3().setFromObject(parts[id].group);
+  const c = box.getCenter(new THREE.Vector3()), r = box.getSize(new THREE.Vector3()).length() / 2;
+  const dir = camera.position.clone().sub(controls.target).normalize();
+  if (dir.y < 0.55) { dir.y = 0.55; dir.normalize(); }
+  fly = { t0: performance.now(), from: [camera.position.clone(), controls.target.clone()], to: [c.clone().addScaledVector(dir, Math.max(150, r * 5.5)), c] };
+}
+const partsEl = document.getElementById('parts');
+PART_LIST.forEach((id, k) => {
+  const li = document.createElement('li'); li.dataset.id = id; li.innerHTML = `<b>${k + 1}</b>${partName(id)}`;
+  li.onclick = () => { stopTour(); if (selected !== id) select(id); flyTo(id); };
+  li.onmouseenter = () => { hoverId = id; }; li.onmouseleave = () => { hoverId = null; };
+  partsEl.appendChild(li);
+});
 function short(id) { return ({ shield: '', uno: 'Uno ', hc05: 'HC-05 ', l1: 'L298N#1 ', l2: 'L298N#2 ', bus: 'block ', bec: 'BEC ', buck: 'LM2596 ', batA: 'Batt A ', batB: 'Batt B ', mWL: 'L leg ', mWR: 'R leg ', mRot: 'Rot ', mLift: 'Lift ', sv1: 'Slide L ', sv2: 'Slide R ', sv3: 'Claw ', sv4: 'Gate ' })[id] ?? id + ' '; }
 function highlightPin(p) { pinFocus = pinFocus === p ? null : p; selected = null; }
 
@@ -397,7 +419,7 @@ updateRail();
 // ---------------------------------------------------------------- picking
 const ray = new THREE.Raycaster(), mouse = new THREE.Vector2();
 let downAt = null;
-renderer.domElement.addEventListener('pointerdown', e => { downAt = [e.clientX, e.clientY]; stopTour(); });
+renderer.domElement.addEventListener('pointerdown', e => { downAt = [e.clientX, e.clientY]; stopTour(); fly = null; });
 renderer.domElement.addEventListener('pointerup', e => {
   if (!downAt || Math.hypot(e.clientX - downAt[0], e.clientY - downAt[1]) > 4) return;
   const r = renderer.domElement.getBoundingClientRect();
@@ -441,7 +463,8 @@ const TOUR = [
   { d: 6, t: 'Mistake: servos on the Uno 5V', s: 'Press a servo key and the 5 V rail sags: the Uno browns out and resets.', cam: [V(120, 170, 190), V(50, 5, 40)], act: () => { setView('all'); setFault('servoOnUno', true); later(1500, () => press('C')); } },
   { d: 4, t: 'Your turn', s: 'Hold a key, click any part, step through the bring-up order, or switch on a mistake.', cam: [V(-70, 380, 430), V(-55, 0, 25)], act: () => { release('C'); setFault('servoOnUno', false); } },
 ];
-let tour = FILM || !(qs.has('notour') || CLEAN) ? { i: -1, t0: 0, from: null } : null;
+let tour = FILM || qs.has('tour') ? { i: -1, t0: 0, from: null } : null;
+if (!tour && !CLEAN) tourEl.innerHTML = '<b>TOUR</b><u>Play the 45 s tour</u>';
 function stopTour() {
   if (!FILM) finishIntro();
   if (!tour || FILM) return;
@@ -474,7 +497,7 @@ const INTRO_ORDER = ['batA', 'batB', 'shield', 'buck', 'bec', 'bus', 'l1', 'l2',
 const INTRO_PART = 0.12, INTRO_DROP = 0.55, INTRO_WIRE = 0.035, INTRO_GROW = 0.6;
 const introBase = Object.fromEntries(INTRO_ORDER.map(id => [id, parts[id].group.position.y]));
 let intro = (CLEAN || qs.has('nointro')) ? null : { t0: null };
-if (intro) TOUR[0].d = 7;
+if (intro && tour) TOUR[0].d = 7;
 function finishIntro() {
   if (!intro) return;
   intro = null;
@@ -607,6 +630,11 @@ function loop() {
     p.w.curve.getPointAt(k, tmp); dot.position.copy(tmp); dot.visible = true;
   }
 
+  if (fly && !tour) {
+    const k = Math.min(1, (performance.now() - fly.t0) / 1100), e = k * k * (3 - 2 * k);
+    camera.position.lerpVectors(fly.from[0], fly.to[0], e); controls.target.lerpVectors(fly.from[1], fly.to[1], e);
+    if (k === 1) fly = null;
+  }
   if (!tour) controls.update(); else camera.lookAt(controls.target);
   renderer.render(scene, camera);
 
