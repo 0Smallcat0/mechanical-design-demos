@@ -94,7 +94,7 @@ export const WIRES = [
   ['batB.-', 'bec.IN-', 'gnd', 'Battery B − → BEC'],
 ];
 
-// Three mistakes from the plan's "Do not connect" list, so you can see what each one does.
+// Three mistakes the plan warns against ("Do not connect" list and the common-ground rule), so you can see what each one does.
 export const FAULTS = {
   servoOnUno: {
     label: 'Power the servos from the Uno 5V',

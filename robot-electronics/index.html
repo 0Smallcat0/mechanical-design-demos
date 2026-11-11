@@ -6,7 +6,7 @@
 <title>Pick-up robot electronics: interactive wiring · 取物機器人電控接線</title>
 <link rel="stylesheet" href="../style.css">
 <meta property="og:title" content="Pick-up robot electronics: interactive wiring">
-<meta property="og:description" content="The real wiring and firmware of a walking pick-up robot in 3D: drive it, watch every pin, and see what three wiring mistakes do.">
+<meta property="og:description" content="The wiring plan and control logic of a walking pick-up robot in 3D: drive it, watch every pin, and see what three wiring mistakes do.">
 <meta property="og:image" content="https://0smallcat0.github.io/mechanical-design-demos/robot-electronics/media/og.jpg">
 <meta name="twitter:card" content="summary_large_image">
 <link rel="icon" href="../favicon.svg">
@@ -16,7 +16,7 @@
 <header>
   <a href="../">&larr; All demos · 所有作品</a>
   <h1>Pick-up robot electronics · 取物機器人電控接線</h1>
-  <p class="lede">The electronics of my <a href="../walking-pick-robot/">eight-legged pick-up robot</a>, wire for wire: an Arduino Uno, two L298N motor drivers, four servos, Bluetooth and three power supplies. Send it the robot's own commands and watch every pin respond.</p>
+  <p class="lede">The electronics of our team's <a href="../walking-pick-robot/">eight-legged pick-up robot</a>, wired as in its wiring plan: an Arduino Uno, two L298N motor drivers, four servos, Bluetooth and three power supplies. Send it the robot's own commands and watch every pin respond.</p>
   <p class="lede">機械專題取物機器人的實際接線與控制邏輯，可以下指令、看每個腳位、試三種接錯的後果。</p>
   <video src="tour.mp4" autoplay muted loop playsinline preload="auto" poster="media/hero.jpg"></video>
   <p style="margin:18px 0 0"><a class="button" href="live.html" style="font-size:19px;padding:14px 28px">Open the interactive model</a></p>
@@ -35,7 +35,7 @@
 </section>
 
 <section>
-  <h2>Checked against the robot's code</h2>
+  <h2>Checked against the robot's code and wiring plan</h2>
   <table>
     <tr><th>Pins and settings</th><td>17 / 17 pin assignments and 15 / 15 speed, timing and direction constants match the robot's control program</td></tr>
     <tr><th>Commands</th><td>All 30 command characters handled; 14 motion commands give the right motor and servo direction; 8 stop commands stop what they should</td></tr>

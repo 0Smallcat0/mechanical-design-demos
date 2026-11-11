@@ -267,7 +267,7 @@ export function lm2596() {
 export function bec() {
   const g = new THREE.Group(); const pins = {};
   const body = new THREE.Mesh(new THREE.CapsuleGeometry(5.5, 22, 6, 16), MAT.heatBlue()); body.rotation.z = Math.PI / 2; body.scale.set(1, 1, 0.7); body.position.y = 4.2; body.castShadow = true; g.add(body);
-  label('BEC 5V 3A', 14, 3, g, 0, 8.1, 0, { weight: 800 });
+  label('SERVO BEC', 14, 3, g, 0, 8.1, 0, { weight: 800 });
   pins['IN+'] = new THREE.Vector3(-17, 4, -2); pins['IN-'] = new THREE.Vector3(-17, 4, 2);
   pins['OUT+'] = new THREE.Vector3(17, 4, -2); pins['OUT-'] = new THREE.Vector3(17, 4, 2);
   return { group: g, pins };
