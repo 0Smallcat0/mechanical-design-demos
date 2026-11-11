@@ -1,7 +1,6 @@
 import * as THREE from 'three';
 import { OrbitControls } from '../vendor/OrbitControls.js';
 import { unoStack, l298n, hc05, lm2596, bec, servoBus, servo, gearMotor, battery, MAT } from './boards.js';
-import { probes, usbCable, screwdriver } from './props.js';
 import { COMPONENTS, FAULTS, BRINGUP, TUNING, PINS, Firmware, hardware, pinLevel, railCheck, wiresFor } from './net.js';
 
 const qs = new URLSearchParams(location.search);
@@ -105,8 +104,6 @@ place('bec', bec(), 44, 106);
 place('buck', lm2596(), -18, 82);
 place('batA', battery('BATTERY A · MOTORS', MAT.cellBlue()), -100, 140);
 place('batB', battery('BATTERY B · LOGIC', MAT.cellGreen(), true), 40, 150, Math.PI);
-// bench props (scenery only, not in the circuit)
-for (const [o, x, z, ry] of [[probes(), -60, -134, 0.08], [usbCable(), -10, 180, 0], [screwdriver(), -305, 200, 0.22]]) { o.position.x = x; o.position.z = z; o.rotation.y = ry; scene.add(o); }
 
 function pinWorld(ref) {
   const [id, ...rest] = ref.split('.');
