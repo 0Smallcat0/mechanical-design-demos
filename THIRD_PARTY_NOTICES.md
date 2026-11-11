@@ -31,3 +31,5 @@ SOFTWARE.
 
 - [three.js](https://github.com/mrdoob/three.js) (MIT): `robot-arm-planning/vendor/`, `printable-stand/vendor/`; license files are next to the code.
 - [manifold-3d](https://github.com/elalish/manifold) (Apache-2.0): `printable-stand/vendor/`; license file is next to the code.
+
+`harmonic-drive/anatomy.html` follows the isometric interactive SVG approach of [wheresryan22/anatomy](https://github.com/wheresryan22/anatomy) (MIT). No code was copied; the page is written from scratch.
