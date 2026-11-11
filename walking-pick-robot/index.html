@@ -59,7 +59,7 @@
     <tr><th>Control chain</th><td>Xbox controller → Python bridge on a laptop → HC-05 Bluetooth (9600 baud) → Arduino UNO + Sensor Shield V5 → two L298N motor drivers and four continuous servos.</td></tr>
     <tr><th>Command protocol</th><td>One character per action (F/B/L/R walk, U/D lift, E/Q rotate, A/Z reach, O/C gripper, G/K gate, X emergency stop), so every function can be tested from a serial monitor.</td></tr>
     <tr><th>Fail-safe</th><td>Held buttons are resent every 0.25 s; if the UNO hears nothing for a group for 500 ms, it stops that group. A dropped link or a closed program cannot leave the robot running.</td></tr>
-    <tr><th>Power</th><td>Separate battery packs: one for the DC motors, one stepped down to 5 V (LM2596) for the logic and servos, all on a common ground; motor current runs on heavy wire, not breadboard jumpers.</td></tr>
+    <tr><th>Power</th><td>Separate battery packs: one for the DC motors, one feeding the logic through a 5 V LM2596 and the servos through their own BEC, all on a common ground; motor current runs on heavy wire, not breadboard jumpers.</td></tr>
     <tr><th>Before building</th><td>Pin map, protocol, limit-switch logic, emergency stop and command timeout were simulated in Wokwi before any hardware was wired.</td></tr>
   </table>
   <p>Mechanical design of the legs, arm and gripper, and the EV3 robot, were done by teammates.</p>
