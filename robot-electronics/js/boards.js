@@ -608,7 +608,7 @@ function servoSticker() {
   const c = document.createElement('canvas'); c.width = 420; c.height = 300; const g = c.getContext('2d');
   g.fillStyle = '#f4f4f2'; g.fillRect(0, 0, 420, 300);
   g.fillStyle = '#1d1d1f'; g.font = '800 96px Arial'; g.textAlign = 'center'; g.fillText('360°', 210, 120);
-  g.font = '600 36px Arial'; g.fillText('CONTINUOUS ROTATION', 210, 185); g.fillText('MICRO SERVO', 210, 228);
+  g.font = '600 36px Arial'; g.fillText('CONTINUOUS ROTATION', 210, 185); g.fillText('SERVO', 210, 228);
   g.fillStyle = '#2a63d4'; g.fillRect(0, 262, 420, 38);
   _sticker = new THREE.CanvasTexture(c); _sticker.colorSpace = THREE.SRGBColorSpace; _sticker.anisotropy = 8; return _sticker;
 }

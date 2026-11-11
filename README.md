@@ -79,9 +79,9 @@ The key letters are the same as on the real robot.
 
 **▶ [Open the app · 打開互動頁](https://0smallcat0.github.io/mechanical-design-demos/robot-electronics/live.html)**  ·  [Project page with video · 專案頁（影片）](https://0smallcat0.github.io/mechanical-design-demos/robot-electronics/)
 
-The pick-up robot's electronics, wired as in its wiring plan, every board generated in code. Hold a command key and the pins, H-bridges, motors and servos respond as the robot's firmware does; switch off the re-send to see the 500 ms safety stop; colour the wires by supply; or wire it wrong on purpose. Checked against the robot's control program (17 pins, 15 constants, 30 commands) and wiring plan (50 wires, one common ground).
+The pick-up robot's electronics, wired as in its wiring plan, every board generated in code. Hold a command key and the pins, H-bridges, motors and servos respond as the robot's firmware does; switch off the re-send to see the 500 ms safety stop; colour the wires by supply; or wire it wrong on purpose. Checked against the robot's control program (17 pins, 15 constants, 30 commands); the 50 wires pass a supply check (one common ground).
 
-取物機器人的實際接線與控制邏輯，可下指令、看腳位、試接錯的後果。
+取物機器人照接線計畫的接線與控制邏輯，可下指令、看腳位、試接錯的後果。
 
 ---
 
