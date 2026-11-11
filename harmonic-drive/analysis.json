@@ -1,0 +1,71 @@
+{
+  "part": "SW-100 cup-type strain wave gear",
+  "geometry": {
+    "module_mm": 0.25,
+    "teeth_flexspline": 200,
+    "teeth_circular_spline": 202,
+    "pitch_diameter_flexspline_mm": 50.0,
+    "circular_spline_profile_mean_d_mm": 50.62,
+    "radial_deflection_w0_mm": 0.25,
+    "face_width_mm": 10.0,
+    "cup_length_mm": 34.0,
+    "cup_length_to_diameter": 0.68,
+    "rim_thickness_mm": 0.9,
+    "wall_thickness_mm": 0.55,
+    "outer_diameter_mm": 72.0
+  },
+  "kinematics": {
+    "ratio": 100.0,
+    "ratio_numeric_check": 100.0,
+    "input_rpm": 3000,
+    "output_rpm": -30.0,
+    "output_direction": "opposite to input (circular spline fixed)",
+    "rated_output_torque_Nm": 7.0,
+    "efficiency_assumed": 0.75,
+    "input_torque_Nm": 0.0933,
+    "input_power_W": 29.3,
+    "method": "i = Zf/(Zc-Zf). Numeric check: wave generator stepped through one turn in 8 steps; at each step the flexspline phase that maximises the minimum CS-FS radial gap is searched; i = -Δwg/Δphase."
+  },
+  "meshing": {
+    "min_radial_gap_mm": 0.015,
+    "checked_wg_angles_rad": [
+      0.0,
+      0.3,
+      1.0,
+      2.0
+    ],
+    "samples_per_circle": 60000,
+    "interference_3d": "none (boolean intersection of every part pair > 1e-4 mm^3)",
+    "engagement_depth_at_major_axis_mm": 0.24,
+    "arc_with_tooth_band_overlap_deg": 175.4,
+    "teeth_in_band_overlap": 97,
+    "method": "Both tooth surfaces are polar functions r(θ) (FS: Rf + w0 cos2(θ-wg) + A cos Zf(θ-φ); CS: Rc + A cos Zcθ). Gap = r_CS - r_FS sampled at 60,000 points per circle; gap > 0 everywhere means no overlap. Tooth form is a simplified cosine profile, not a production S-tooth."
+  },
+  "flexspline_fatigue": {
+    "neutral_radius_mm": 24.4,
+    "peak_bending_strain": 0.000567,
+    "bending_stress_MPa": 116.8,
+    "tooth_root_Kt_assumed": 2.0,
+    "tooth_root_bending_stress_MPa": 233.6,
+    "cup_torsion_shear_at_rated_MPa": 3.42,
+    "von_mises_root_MPa": 233.6,
+    "fatigue_limit_MPa": 480,
+    "Sut_assumed_MPa": 1080.0,
+    "goodman_safety_factor": 2.03,
+    "stress_cycles_per_hour": 360000,
+    "hours_to_1e9_cycles": 2778.0,
+    "method": "Thin ring with w = w0 cos2θ: Δκ = (w''+w)/R² = -3 w0 cos2θ/R², ε = (h/2)·3w0/R². Fully reversed bending twice per wave-generator turn; cup torsion τ = T/(2π r² t) taken as steady mean stress; Goodman line. Infinite life is needed: 10^9 cycles is about 116 days of continuous running at 3000 rpm."
+  },
+  "wave_generator_load": {
+    "ring_deformation_force_N": 28.9,
+    "tangential_mesh_force_at_rated_N": 280.0,
+    "approx_force_per_loaded_tooth_N": 9.7,
+    "method": "Force to spread the rim by 2·w0 across the major axis: thin ring under two diametral loads, δ = 0.149 F R³/(EI) (Roark). Tangential force F = T/Rf; about 30% of the band-overlap teeth assumed to share load."
+  },
+  "not_covered": [
+    "torsional stiffness and hysteresis (lost motion)",
+    "flexible-bearing L10 life",
+    "production tooth profile (S-tooth / IH) and tangential deflection term",
+    "FEA of the diaphragm"
+  ]
+}

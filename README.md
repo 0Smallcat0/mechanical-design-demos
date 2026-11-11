@@ -38,6 +38,18 @@ The project page also has a 30-second product film, a 41-second tour of the inte
 
 ---
 
+## SW-100 strain wave gear · SW-100 諧波減速機
+
+[![Section view of the SW-100 strain wave gear: wave generator, flexspline and circular spline](harmonic-drive/media/render_section.jpg)](https://0smallcat0.github.io/mechanical-design-demos/harmonic-drive/live.html)
+
+**▶ [Open the 3D model · 打開 3D 模型](https://0smallcat0.github.io/mechanical-design-demos/harmonic-drive/live.html)**  ·  [Project page with video, drawings and CAD files · 專案頁（影片、工程圖、CAD 檔）](https://0smallcat0.github.io/mechanical-design-demos/harmonic-drive/)
+
+The compact gearbox used in robot joints: an oval cam flexes a thin toothed cup (200 teeth) inside a ring with 202, giving 100:1 in one stage. Tooth clearance is checked by code (minimum 0.015 mm, no interference) and the flexspline's fatigue safety factor is 2.03.
+
+100:1 諧波減速機，齒隙與柔輪疲勞由程式驗算。
+
+---
+
 ## Eight-legged pick-up robot + EV3 transport robot · 八足取物機器人＋EV3 運輸機器人
 
 [![Studio render of the eight-legged pick-up robot](walking-pick-robot/media/render-hero.jpg)](https://0smallcat0.github.io/mechanical-design-demos/walking-pick-robot/live.html)

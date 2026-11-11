@@ -1,6 +1,6 @@
 # Third-party notices
 
-The interactive model pages (`cd11-cycloid-reducer/live.html`, `walking-pick-robot/live.html`) are built with the teardown kit by elvarofficial, based on [whaleyxbt/claude-motion](https://github.com/whaleyxbt/claude-motion). Its runtime, page frame and capture tools are used under the MIT License below. Recorded sound samples are CC0.
+The interactive model pages (`cd11-cycloid-reducer/live.html`, `walking-pick-robot/live.html`, `harmonic-drive/live.html`) are built with the teardown kit by elvarofficial, based on [whaleyxbt/claude-motion](https://github.com/whaleyxbt/claude-motion). Its runtime, page frame and capture tools are used under the MIT License below. Recorded sound samples are CC0.
 
 ```
 MIT License
