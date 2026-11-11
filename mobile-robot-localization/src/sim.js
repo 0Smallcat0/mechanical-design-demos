@@ -120,9 +120,11 @@ export class World {
       cmd = this.pp.control([this.est.x, this.est.y, this.est.th]);
       if (cmd.done) { this.mode = 'idle'; this.log('Goal reached'); this.onGoalReached?.(); cmd = { v: 0, w: 0 }; }
     }
-    // safety: never drive the true robot into anything (bumper stop)
-    const { next, encL, encR } = driveStep(this.pose, cmd.v, cmd.w, DT, this.rng);
-    if (this.truth.distAt(next[0], next[1]) > ROBOT.radius - 0.05) this.pose = next;
+    // bumper: a step that would touch something is not taken and the wheels do not turn; after 0.4 s stuck, back up for 0.7 s and replan
+    if (this.backUp > 0) { cmd = { v: -0.2, w: 0 }; this.backUp--; if (this.backUp === 0 && this.goal && this.mode === 'driving') this.replan('after backing up'); }
+    let { next, encL, encR } = driveStep(this.pose, cmd.v, cmd.w, DT, this.rng);
+    if (this.truth.distAt(next[0], next[1]) > ROBOT.radius - 0.05) { this.pose = next; this.stuck = 0; }
+    else { encL = encR = 0; if (cmd.v > 0.05 && ++this.stuck >= 12 && !this.backUp) { this.backUp = 21; this.stuck = 0; this.log('Bumper: stuck, backing up'); } }
     this.odom = integrateOdom(this.odom, encL, encR);
     this.cmd = cmd;
     this.step++; this.t = this.step * DT;
@@ -134,6 +136,10 @@ export class World {
     // annealing: a wide likelihood while the particles are spread over the map, the sensor's own width once they agree
     const sp = this.est.spread;
     this.pf.sigmaHit = this.mode === 'localizing' ? Math.min(this.sigmaWide ?? 0.6, Math.max(0.15, (this.anneal ?? 0.15) * sp)) : 0.15;
+    // global search: temper the likelihood (Neff floor) and roughen the resampled cloud so it explores before it commits
+    const searching = this.mode === 'localizing';
+    this.pf.neffTarget = searching ? (this.neffFloor ?? 0.55) : 0;
+    this.pf.jitter = searching ? [0.08, 0.04] : [0, 0];
     this.pf.update(this.scan);
     this.est = this.pf.est;
     const err = Math.hypot(this.est.x - this.pose[0], this.est.y - this.pose[1]);

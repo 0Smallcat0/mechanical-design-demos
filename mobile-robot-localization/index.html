@@ -3,54 +3,58 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Warehouse robot — particle-filter localization, A* and pure pursuit · 倉儲機器人定位與路徑規劃</title>
+<title>Warehouse robot: particle-filter localization, A* and pure pursuit · 倉儲機器人定位與路徑規劃</title>
 <link rel="stylesheet" href="../style.css">
+<meta property="og:title" content="Warehouse robot: particle-filter localization, A* and pure pursuit">
+<meta property="og:description" content="A simulated delivery robot that finds itself from lidar and wheel odometry, plans with A* and drives with pure pursuit; run it in the browser.">
+<meta property="og:image" content="https://0smallcat0.github.io/mechanical-design-demos/mobile-robot-localization/media/og.jpg">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" href="../favicon.svg">
+<style>
+  .hero { margin: 8px 0 20px; }
+  .hero video { aspect-ratio: 16 / 9; background: #0e1013; }
+  .cta { margin: 18px 0 8px; } .cta .button { font-size: 20px; padding: 14px 30px; }
+  details { margin: 0 0 10px; } summary { cursor: pointer; font-weight: 600; padding: 6px 0; }
+</style>
 </head>
 <body>
 <header>
   <a href="../">&larr; All demos · 所有作品</a>
   <h1>Warehouse robot: localize, plan, follow · 倉儲機器人定位與路徑規劃</h1>
-  <p class="lede">A differential-drive delivery robot that only has wheel odometry and a 2D lidar. A particle filter works out where it is, A* plans on the map inflated by the robot's radius, and pure pursuit drives the path. Drop a box in its way and it replans; carry it somewhere else and it notices and relocalizes.</p>
-  <p class="lede">只靠輪速里程計與 2D 光達：粒子濾波定位、A* 規劃、Pure Pursuit 循跡，遇到障礙重規劃，被搬走會自己重新定位。</p>
+  <div class="hero"><video src="demo.mp4" autoplay muted loop playsinline preload="metadata" poster="media/poster.jpg" aria-label="Film: the particle cloud converges on the robot's position, it drives, replans around a box, is kidnapped and searches again"></video></div>
+  <p class="cta"><a class="button" href="live.html">Open the live simulator · 打開模擬器</a></p>
+  <p class="lede">A simulated delivery robot with only wheel odometry and a 2D lidar: a particle filter finds where it is, A* plans, pure pursuit drives. In 200 random runs it localized from scratch every time (median 7.9 s) and recovered from a kidnap in 191.</p>
+  <p class="lede">只靠輪速里程計與 2D 光達：粒子濾波定位、A* 規劃、Pure Pursuit 循跡。200 次隨機模擬中，從零定位全部成功，被搬走後重新定位成功 191 次。</p>
 </header>
 
 <main>
 <section>
-  <h2>Try it · 線上操作</h2>
-  <p>Click the map to set a goal or drop a box, then kidnap the robot. Everything runs in the browser; the white robot and the error numbers are the simulator's ground truth, shown for comparison.</p>
-  <p><a class="button" href="live.html">Open the live simulator · 打開模擬器</a></p>
-  <a href="live.html"><img src="media/live.png" alt="Live simulator: warehouse map with particles, lidar, A* path and metrics panel"></a>
-</section>
-
-<section>
-  <h2>28-second run · 28 秒示範</h2>
-  <p>Recorded from the simulator's own canvas with scripted events: global localization, a box nobody mapped, a kidnap, recovery. 3× speed.</p>
-  <video src="demo.mp4" controls muted playsinline preload="metadata" poster="media/poster.jpg"></video>
-</section>
-
-<section>
   <h2>Results · 測試結果</h2>
-  <p>From <code>node test/bench.js</code> (20 random seeds per row) and the unit tests in <code>test/</code>.</p>
+  <p>From <code>node test/bench.js</code> (200 random seeds per row) and the unit tests in <code>test/</code>.</p>
   <table>
-    <tr><th>Global localization, no initial guess</th><td>17 of 20 runs converged (&lt; 10 cm held for 1 s); median 19.6 s, 90th percentile 32.4 s</td></tr>
-    <tr><th>Tracking error while driving</th><td>mean 5.4 cm, 95th percentile 7.3 cm</td></tr>
-    <tr><th>Wheel odometry alone, same runs</th><td>median 8.8 m off after three deliveries (120 s), even when given the true start</td></tr>
-    <tr><th>Kidnapped robot</th><td>14 of 20 recovered; noticed after a median 0.3 s, back under 10 cm after 9.5 s</td></tr>
-    <tr><th>A* vs Dijkstra</th><td>same optimal cost on all 291 solvable random maps and on all 10 station pairs; A* expands 30% of Dijkstra's cells on the warehouse, median 7.68 ms</td></tr>
+    <tr><th>Global localization, no initial guess</th><td>200 of 200 runs converged (&lt; 10 cm held for 1 s, still true after 90 s); median 7.9 s, 90th percentile 23 s</td></tr>
+    <tr><th>Tracking error while driving</th><td>mean 5.3 cm, 95th percentile 6.36 cm</td></tr>
+    <tr><th>Wheel odometry alone, same kind of run</th><td>median 8.77 m off after three deliveries (120 s), even when given the true start</td></tr>
+    <tr><th>Kidnapped robot</th><td>191 of 200 recovered to &lt; 10 cm within 90 s; the lost state was noticed after a median 0.3 s, back under 10 cm after a median 6.7 s</td></tr>
+    <tr><th>A* vs Dijkstra</th><td>same optimal cost on all 291 solvable random maps and on all 10 station pairs; A* expands 30% of Dijkstra's cells on the warehouse, median 6.41 ms</td></tr>
   </table>
-  <p>Global localization in a warehouse is hard on purpose: aisles look alike, so a few runs settle on a look-alike aisle until the scan stops fitting. Full numbers: <a href="results.json">results.json</a></p>
+  <p>Simulation only, with the simulator's own noise model. The cloud stays spread over several candidate aisles for a median 6.3 s before it commits; the other 9 kidnap runs did not settle within 90 s (look-alike aisles). Full numbers: <a href="results.json">results.json</a></p>
+  <a href="live.html"><img loading="lazy" src="media/live.jpg" alt="Live simulator: warehouse map with particles, lidar, A* path and metrics panel"></a>
 </section>
 
 <section>
-  <h2>How it works · 方法</h2>
-  <table>
-    <tr><th>Robot and sensors</th><td>Differential drive, 0.42 m wheel base. Encoders carry 2% noise and a 1.5% right-wheel radius error, so odometry alone drifts. 72-beam 360° lidar, 15 m range, 2 cm noise, 2% dropouts.</td></tr>
-    <tr><th>Localization</th><td>Monte Carlo localization: odometry motion model, likelihood-field sensor model on a Euclidean distance transform of the map, low-variance resampling when the effective sample size drops below N/2. 5,000 particles while searching, 1,000 while tracking. The likelihood is widened while particles are spread out and narrowed as they agree (annealing).</td></tr>
-    <tr><th>Lost and found</th><td>Augmented MCL injects random particles when the short-term fit drops below the long-term fit. A scan-fit score at the estimate tells the robot it is lost. It then stops, clears what its lidar marked, and searches globally again.</td></tr>
-    <tr><th>Planning</th><td>A* on an 8-connected 10 cm grid, octile heuristic, no corner cutting, obstacles inflated by 0.35 m. Lidar returns that the prior map lacks go onto a costmap. Beams that pass through clear them, and the path is replanned when it is blocked.</td></tr>
-    <tr><th>Following</th><td>Pure pursuit with a 0.7 m look-ahead. Speed drops with curvature and near the goal; the robot turns in place when the target is behind it.</td></tr>
-    <tr><th>Code</th><td>Plain JavaScript modules in <a href="https://github.com/0Smallcat0/mechanical-design-demos/tree/main/mobile-robot-localization/src">src/</a>, no libraries. The same code runs the page, the tests and the film.</td></tr>
-  </table>
+  <details>
+    <summary>How it works · 方法</summary>
+    <table>
+      <tr><th>Robot and sensors</th><td>Differential drive, 0.42 m wheel base. Encoders carry 2% noise and a 1.5% right-wheel radius error, so odometry alone drifts. 72-beam 360° lidar, 15 m range, 2 cm noise, 2% dropouts.</td></tr>
+      <tr><th>Localization</th><td>Monte Carlo localization: odometry motion model, likelihood-field sensor model on a Euclidean distance transform of the map, low-variance resampling when the effective sample size drops below N/2. 5,000 particles while searching, 1,000 while tracking.</td></tr>
+      <tr><th>Global search</th><td>The scan likelihood is tempered: each update uses the largest exponent that keeps the effective sample size above 55% of N, and resampled particles are jittered by 8 cm. Without this the cloud collapsed onto one wrong spot within a second, so the cloud now passes through several candidate places while the robot wanders and sees more of the aisles.</td></tr>
+      <tr><th>Lost and found</th><td>Augmented MCL injects random particles when the short-term fit drops below the long-term fit. A scan-fit score at the estimate tells the robot it is lost. It then stops, clears what its lidar marked, and searches globally again.</td></tr>
+      <tr><th>Planning</th><td>A* on an 8-connected 10 cm grid, octile heuristic, no corner cutting, obstacles inflated by 0.35 m. Lidar returns that the prior map lacks go onto a costmap. Beams that pass through clear them, and the path is replanned when it is blocked.</td></tr>
+      <tr><th>Following</th><td>Pure pursuit with a 0.5 m look-ahead. Speed drops with curvature and near the goal; the robot turns in place when the target is behind it. A bumper model stops the true robot short of any contact and backs it up if it stays stuck.</td></tr>
+      <tr><th>Code</th><td>Plain JavaScript modules in <a href="https://github.com/0Smallcat0/mechanical-design-demos/tree/main/mobile-robot-localization/src">src/</a>, no libraries. The same code runs the page, the tests and the film.</td></tr>
+    </table>
+  </details>
 </section>
 </main>
 </body>

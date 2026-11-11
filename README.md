@@ -40,7 +40,7 @@ The project page also has a 30-second product film, a 41-second tour of the inte
 
 ## SW-100 strain wave gear · SW-100 諧波減速機
 
-[![Section view of the SW-100 strain wave gear: wave generator, flexspline and circular spline](harmonic-drive/media/render_section.jpg)](https://0smallcat0.github.io/mechanical-design-demos/harmonic-drive/live.html)
+[![Section view of the SW-100 strain wave gear: wave generator, flexspline and circular spline](harmonic-drive/media/og.jpg)](https://0smallcat0.github.io/mechanical-design-demos/harmonic-drive/live.html)
 
 **▶ [Open the 3D model · 打開 3D 模型](https://0smallcat0.github.io/mechanical-design-demos/harmonic-drive/live.html)**  ·  [Project page with video, drawings and CAD files · 專案頁（影片、工程圖、CAD 檔）](https://0smallcat0.github.io/mechanical-design-demos/harmonic-drive/)
 
@@ -75,7 +75,7 @@ The key letters are the same as on the real robot.
 
 ## 6-DOF arm: inverse kinematics and motion planning · 六軸手臂逆運動學與路徑規劃
 
-[![6-DOF arm planning a collision-free path over a wall](robot-arm-planning/media/hero.png)](https://0smallcat0.github.io/mechanical-design-demos/robot-arm-planning/live.html)
+[![6-DOF arm planning a collision-free path over a wall](robot-arm-planning/media/og.jpg)](https://0smallcat0.github.io/mechanical-design-demos/robot-arm-planning/live.html)
 
 **▶ [Open the app · 打開互動頁](https://0smallcat0.github.io/mechanical-design-demos/robot-arm-planning/live.html)**  ·  [Project page with video and method · 專案頁（影片與方法）](https://0smallcat0.github.io/mechanical-design-demos/robot-arm-planning/)
 
@@ -85,25 +85,25 @@ Drag a target and the arm follows by inverse kinematics; **Plan to target** find
 
 ---
 
-## Inverted pendulum: PID vs LQR vs reinforcement learning · 倒單擺控制比較
+## Inverted pendulum: PD vs LQR vs reinforcement learning · 倒單擺控制比較
 
-[![Three inverted pendulums balanced by PID, LQR and an RL policy](inverted-pendulum-control/media/live-push.png)](https://0smallcat0.github.io/mechanical-design-demos/inverted-pendulum-control/live.html)
+[![Three inverted pendulums balanced by PD, LQR and an RL policy](inverted-pendulum-control/media/og.jpg)](https://0smallcat0.github.io/mechanical-design-demos/inverted-pendulum-control/live.html)
 
 **▶ [Open the app · 打開互動頁](https://0smallcat0.github.io/mechanical-design-demos/inverted-pendulum-control/live.html)**  ·  [Project page with video and method · 專案頁（影片與方法）](https://0smallcat0.github.io/mechanical-design-demos/inverted-pendulum-control/)
 
-Three controllers balance the same nonlinear cart-pole side by side. Push a cart, add sensor noise or make the pole heavier and see which one holds. Over 50 randomized runs: PID survives 84%, LQR 92%, RL 90%.
+Three controllers balance the same nonlinear cart-pole side by side. Push a cart, add sensor noise or make the pole heavier and see which one holds. Over 2,000 randomized runs: PD + cart loop survives 80%, LQR 84%, RL 82%; hard cases show where each one fails.
 
-PID、LQR、強化學習三種控制器同場比較，可推車、加雜訊、改擺桿。
+PD、LQR、強化學習三種控制器同場比較，可推車、加雜訊、改擺桿。
 
 ---
 
 ## Warehouse robot: localization, planning and path following · 倉儲機器人定位與路徑規劃
 
-[![Warehouse robot localizing itself with lidar and a particle filter](mobile-robot-localization/media/poster.jpg)](https://0smallcat0.github.io/mechanical-design-demos/mobile-robot-localization/live.html)
+[![Warehouse robot localizing itself with lidar and a particle filter](mobile-robot-localization/media/og.jpg)](https://0smallcat0.github.io/mechanical-design-demos/mobile-robot-localization/live.html)
 
 **▶ [Open the app · 打開互動頁](https://0smallcat0.github.io/mechanical-design-demos/mobile-robot-localization/live.html)**  ·  [Project page with video and method · 專案頁（影片與方法）](https://0smallcat0.github.io/mechanical-design-demos/mobile-robot-localization/)
 
-A differential-drive robot finds where it is from simulated lidar (particle filter), plans with A* and drives with pure pursuit. It tracks within about 5 cm while wheel odometry alone drifts metres. Click to set goals, drop boxes in its way, or kidnap it.
+A differential-drive robot finds where it is from simulated lidar (particle filter), plans with A* and drives with pure pursuit. In 200 simulated runs it always found itself (median 7.9 s), tracks within about 5 cm, and recovered from 191 of 200 kidnaps. Click to set goals, drop boxes in its way, or kidnap it.
 
 粒子濾波定位、A* 規劃與路徑跟隨，可綁架機器人看它重新定位。
 
@@ -111,7 +111,7 @@ A differential-drive robot finds where it is from simulated lidar (particle filt
 
 ## Print-in-place folding stand · 可列印折疊支架
 
-[![Orange 3D-printed folding phone stand](printable-stand/media/card.jpg)](https://0smallcat0.github.io/mechanical-design-demos/printable-stand/configurator.html)
+[![Orange 3D-printed folding phone stand](printable-stand/media/og.jpg)](https://0smallcat0.github.io/mechanical-design-demos/printable-stand/configurator.html)
 
 **▶ [Open the configurator · 打開設計器](https://0smallcat0.github.io/mechanical-design-demos/printable-stand/configurator.html)**  ·  [Project page with video and method · 專案頁（影片與方法）](https://0smallcat0.github.io/mechanical-design-demos/printable-stand/)
 

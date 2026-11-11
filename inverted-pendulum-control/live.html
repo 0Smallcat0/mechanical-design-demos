@@ -3,19 +3,30 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Inverted pendulum: PID vs LQR vs RL · live</title>
+<title>Inverted pendulum: PD+cart vs LQR vs RL · live</title>
+<link rel="icon" href="../favicon.svg">
 <style>
-:root { --bg:#0f1012; --panel:#17181b; --line:#2a2b30; --fg:#f2f2f4; --mut:#9a9aa2; --pid:#ff7a2f; --lqr:#4dabf7; --rl:#51cf66; }
+:root { --bg:#0f1012; --panel:#17181b; --line:#2a2b30; --fg:#f2f2f4; --mut:#9a9aa2; --pid:#ff7a2f; --lqr:#4dabf7; --rl:#51cf66; --bad:#ff4d4f; }
 * { box-sizing:border-box; }
 html,body { margin:0; background:var(--bg); color:var(--fg); font:14px/1.4 system-ui,-apple-system,"Segoe UI",sans-serif; }
-#app { display:grid; grid-template-rows:auto auto 1fr; gap:10px; padding:12px 16px; height:100vh; min-height:640px; }
-header { display:flex; align-items:center; gap:14px; flex-wrap:wrap; }
+#hint { display:none; background:#2a1d10; color:#ffd8a8; padding:8px 14px; font-size:13px; text-align:center; }
+#hint a { color:#fff; font-weight:600; }
+#app { display:grid; grid-template-rows:auto auto auto 1fr; gap:10px; padding:12px 16px; height:100vh; min-height:700px; }
+header { display:flex; align-items:center; gap:12px; flex-wrap:wrap; }
 header h1 { font-size:18px; margin:0 12px 0 0; font-weight:650; }
 header a { color:var(--mut); text-decoration:none; }
 button { background:#24252a; color:var(--fg); border:1px solid #34353b; border-radius:999px; padding:6px 14px; font:inherit; cursor:pointer; }
 button:hover { border-color:#5a5b62; }
+button.hot { background:#3a1b1d; border-color:#7a2e31; }
+#tourbar { display:flex; align-items:center; gap:14px; min-height:28px; }
+#tourchip { display:flex; align-items:center; gap:8px; font:600 11.5px/1 system-ui; letter-spacing:.08em; padding:7px 12px; border:1px solid #3a3b42; border-radius:999px; background:#1c1d21; color:#fff; cursor:pointer; white-space:nowrap; }
+#tourchip i { width:7px; height:7px; border-radius:50%; background:#d6182b; display:block; }
+#tourchip.on i { animation:blink 1.2s steps(2) infinite; }
+@keyframes blink { 50% { opacity:.15; } }
+#tcap { font-size:16px; font-weight:600; color:#fff; }
 #carts { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; }
 .cart { background:var(--panel); border:1px solid var(--line); border-radius:12px; position:relative; height:250px; cursor:crosshair; }
+.cart.fell { border-color:var(--bad); box-shadow:0 0 0 1px var(--bad) inset; }
 .cart canvas { width:100%; height:100%; display:block; }
 #bottom { display:grid; grid-template-columns:1fr 330px; gap:10px; min-height:0; }
 #plots { display:grid; grid-template-rows:repeat(3,1fr); gap:8px; min-height:0; }
@@ -33,25 +44,42 @@ th:first-child,td:first-child { text-align:left; color:var(--mut); font-weight:5
 .k-pid{color:var(--pid)} .k-lqr{color:var(--lqr)} .k-rl{color:var(--rl)}
 #check { color:var(--mut); font-size:12px; margin-top:8px; }
 #cap { display:none; }
+body.film #hint, body.film #tourbar { display:none; }
 body.film #app { padding:28px 40px; gap:16px; grid-template-rows:auto auto 1fr; }
 body.film header .ui, body.film #side { display:none; }
 body.film #bottom { grid-template-columns:1fr; }
 body.film .cart { height:430px; cursor:default; }
 body.film header h1 { font-size:26px; }
-body.film #cap { display:block; font-size:30px; font-weight:600; margin-left:auto; color:#fff; min-height:40px; transition:opacity .2s; }
-#end { display:none; position:fixed; inset:0; background:rgba(15,16,18,.94); align-items:center; justify-content:center; flex-direction:column; gap:18px; }
+body.film #cap { display:block; font-size:30px; font-weight:600; margin-left:auto; color:#fff; min-height:40px; }
+#end { display:none; position:fixed; inset:0; background:rgba(15,16,18,.94); align-items:center; justify-content:center; flex-direction:column; gap:18px; text-align:center; }
 #end .big { font-size:46px; font-weight:700; } #end .row { font-size:34px; } #end .mut { color:var(--mut); font-size:22px; }
+@media (max-width:900px) {
+  #hint { display:block; }
+  #app { height:auto; min-height:0; padding:10px; grid-template-rows:none; }
+  header h1 { font-size:16px; margin:0; width:100%; }
+  #carts { grid-template-columns:1fr; gap:8px; }
+  .cart { height:150px; }
+  #bottom { grid-template-columns:1fr; }
+  #plots { grid-template-rows:none; }
+  .plot { height:130px; }
+  #tourbar { flex-wrap:wrap; gap:6px; }
+  #tcap { font-size:14px; }
+  label.sl { grid-template-columns:110px 1fr 42px; }
+  header .ui.hide-m { display:none; }
+}
 </style>
 </head>
 <body>
+<div id="hint">Best on a computer &mdash; <a href="./">watch the film on the project page</a></div>
 <div id="app">
   <header>
-    <h1>Inverted pendulum · PID vs LQR vs RL</h1>
-    <span class="ui"><button id="bTilt">Tilt 0.2 rad</button> <button id="bSwing">Swing up from hanging</button> <button id="bPush">Push all</button></span>
-    <span class="ui" style="color:var(--mut)">Click a cart panel to push that pole.</span>
+    <h1>Inverted pendulum &middot; PD+cart vs LQR vs RL</h1>
+    <span class="ui"><button id="bTilt">Tilt 0.2 rad</button> <button id="bPush">Push all</button> <button id="bHard" class="hot">Hard case</button> <button id="bSwing">Swing up</button></span>
+    <span class="ui hide-m" style="color:var(--mut)">Click a panel to push that pole.</span>
     <a class="ui" href="./" style="margin-left:auto">Project page &rarr;</a>
     <div id="cap"></div>
   </header>
+  <div id="tourbar"><div id="tourchip" class="on"><i></i><span>AUTO TOUR &middot; CLICK ANYWHERE TO TAKE OVER</span></div><div id="tcap"></div></div>
   <div id="carts">
     <div class="cart" data-k="pid"><canvas></canvas></div>
     <div class="cart" data-k="lqr"><canvas></canvas></div>
@@ -70,10 +98,10 @@ body.film #cap { display:block; font-size:30px; font-weight:600; margin-left:aut
       <label class="sl">Sensor noise σ (rad)<input id="sN" type="range" min="0" max="0.03" step="0.001" value="0"><output></output></label>
       <label class="sl">Force limit (N)<input id="sF" type="range" min="5" max="40" step="1" value="15"><output></output></label>
       <label style="display:flex;gap:8px;align-items:center;color:#d0d0d6"><input id="sSat" type="checkbox" checked> Actuator saturation on</label>
-      <h3>PID gains</h3>
+      <h3>PD + cart-loop gains</h3>
       <label class="sl">Kp<input id="gP" type="range" min="0" max="150" step="0.5"><output></output></label>
-      <label class="sl">Ki<input id="gI" type="range" min="0" max="60" step="0.5"><output></output></label>
       <label class="sl">Kd<input id="gD" type="range" min="0" max="30" step="0.1"><output></output></label>
+      <label class="sl">Ki (extra, ≈0)<input id="gI" type="range" min="0" max="60" step="0.5"><output></output></label>
       <h3>Scoreboard (precomputed in Python)</h3>
       <table id="score"></table>
       <div id="check">Checking the browser simulator against Python…</div>
@@ -87,8 +115,10 @@ body.film #cap { display:block; font-size:30px; font-weight:600; margin-left:aut
 (function () {
   const D = window.PEND, S = window.SIM;
   const KINDS = ['pid', 'lqr', 'rl'];
-  const NAME = { pid: 'PID', lqr: 'LQR', rl: 'RL (CEM policy)' };
+  const NAME = { pid: 'PD + cart loop', lqr: 'LQR', rl: 'RL (CEM policy)' };
+  const SHORT = { pid: 'PD+cart', lqr: 'LQR', rl: 'RL' };
   const COL = { pid: '#ff7a2f', lqr: '#4dabf7', rl: '#51cf66' };
+  const BAD = '#ff4d4f';
   const film = /[?&]film=1/.test(location.search);
   if (film) document.body.classList.add('film');
   const $ = (id) => document.getElementById(id);
@@ -98,23 +128,53 @@ body.film #cap { display:block; font-size:30px; font-weight:600; margin-left:aut
   const gains = (k) => (k === 'pid' ? pid : k === 'lqr' ? D.K : D.rl);
   let loops = {}, hist = {}, seedN = 1;
   const HIST = 800;
+  const R = D.results, f = (v, d) => (v == null ? '–' : v.toFixed(d));
 
-  function reset(th0) {
+  // hard cases: runs of the 2000-run sweep whose outcome differs between controllers (indices 14, 33, 35, 38 of the first 50)
+  const HARD = [14, 33, 35, 38].map((i) => R.hard.find((h) => h.i === i)).filter(Boolean);
+  const hardText = (h) => (h.survived.length === 1 ? `Only ${SHORT[h.survived[0]]} holds` : `Only ${SHORT[h.fell[0]]} falls`);
+
+  function syncUI() {
+    if (film) return;
+    for (const [id, v, d] of [['sM', plant.mm, 2], ['sL', plant.lm, 2], ['sN', plant.noise, 3], ['sF', plant.Fmax, 0]]) { $(id).value = v; $(id).nextElementSibling.textContent = (+v).toFixed(d); }
+    $('sSat').checked = plant.sat;
+  }
+  function setPlant(mm, lm, noise) { plant.mm = mm; plant.lm = lm; plant.noise = noise; plant.Fmax = 15; plant.sat = true; syncUI(); }
+  function reset(th0, rails) {
     const p = P();
     for (const k of KINDS) {
-      loops[k] = new S.Loop(k, gains(k), p, [0, 0, th0, 0], { noise: plant.noise, seed: seedN, sat: plant.sat, rails: 'clamp', design: p });
+      loops[k] = new S.Loop(k, gains(k), p, [0, 0, th0, 0], { noise: plant.noise, seed: seedN, sat: plant.sat, rails: rails || 'fail', design: p });
       hist[k] = { th: [], x: [], F: [] };
     }
     seedN++;
+  }
+  // replay run #i of the Python sweep: same scenario, same noise seed, push at t = 2 s
+  function loadHard(h) {
+    setPlant(h.mm, h.lm, D.sigma);
+    const p = P();
+    for (const k of KINDS) {
+      loops[k] = new S.Loop(k, gains(k), p, [0, 0, h.th0, 0], { noise: D.sigma, seed: h.seed, pushes: [[2.0, 0.1, h.push]], rails: 'fail', design: D.P });
+      hist[k] = { th: [], x: [], F: [] };
+    }
   }
   function applyPlant() {
     const p = P();
     for (const k of KINDS) { const L = loops[k]; L.p = p; L.design = p; L.noise = plant.noise; L.sat = plant.sat; }
   }
-  function push(k, f) { const L = loops[k]; const t = L.k * S.DT; L.pushes.push([t, 0.1, f]); L.pushFlash = 18 * Math.sign(f); }
+  function push(k, fo) { const L = loops[k]; const t = L.k * S.DT; L.pushes.push([t, 0.1, fo]); L.pushFlash = 18 * Math.sign(fo); }
   function stepAll() {
     for (const k of KINDS) {
       const L = loops[k]; L.step();
+      if (L.failed) {                       // a fallen pole keeps falling, uncontrolled, until it lies down
+        if (L.fellT == null) L.fellT = L.k * S.DT;
+        L.F = 0; L.Fd = 0;
+        if (Math.abs(S.wrap(L.s[2])) < 1.55) {
+          let ns = L.s; const h = S.DT / D.SUB;
+          for (let i = 0; i < D.SUB; i++) ns = S.rk4(ns, 0, 0, L.p, h);
+          if (Math.abs(ns[0]) > L.p.xlim) { ns[0] = Math.sign(ns[0]) * L.p.xlim; ns[1] = 0; }
+          L.s = ns;
+        }
+      }
       const h = hist[k];
       h.th.push(S.wrap(L.s[2]) * 180 / Math.PI); h.x.push(L.s[0]); h.F.push(L.F);
       if (h.th.length > HIST) { h.th.shift(); h.x.shift(); h.F.shift(); }
@@ -129,8 +189,10 @@ body.film #cap { display:block; font-size:30px; font-weight:600; margin-left:aut
   }
   function drawCart(k, el) {
     const [g, w, h] = fit(el.querySelector('canvas')), L = loops[k], p = L.p;
+    const narrow = w < 520, fell = !!L.failed;
+    el.classList.toggle('fell', fell);
     g.clearRect(0, 0, w, h);
-    const sc = Math.min(w / (2 * p.xlim + 0.5), h / 1.25), cx = w / 2, ry = h * 0.72;
+    const sc = Math.min(w / (2 * p.xlim + 0.5), h / (narrow ? 1.9 : 1.25)), cx = w / 2, ry = h * (narrow ? 0.84 : 0.72);
     g.strokeStyle = '#3a3b42'; g.lineWidth = 4; g.lineCap = 'round';
     g.beginPath(); g.moveTo(cx - p.xlim * sc - 14, ry); g.lineTo(cx + p.xlim * sc + 14, ry); g.stroke();
     g.fillStyle = '#3a3b42';
@@ -138,30 +200,36 @@ body.film #cap { display:block; font-size:30px; font-weight:600; margin-left:aut
     g.strokeStyle = '#26272c'; g.lineWidth = 1;
     for (let m = -1; m <= 1; m += 0.5) { const X = cx + m * sc; g.beginPath(); g.moveTo(X, ry + 10); g.lineTo(X, ry + 18); g.stroke(); }
     const X = cx + L.s[0] * sc, th = L.s[2], cw = 0.26 * sc, ch = 0.11 * sc;
-    // force arrow
     if (Math.abs(L.F) > 0.3) {
       const len = (L.F / 15) * 0.35 * sc, yy = ry - ch / 2;
-      g.strokeStyle = COL[k]; g.globalAlpha = 0.85; g.lineWidth = 3;
+      g.strokeStyle = COL[k]; g.fillStyle = COL[k]; g.globalAlpha = 0.85; g.lineWidth = 3;
       g.beginPath(); g.moveTo(X, yy); g.lineTo(X + len, yy); g.stroke();
       g.beginPath(); g.moveTo(X + len, yy); g.lineTo(X + len - Math.sign(len) * 8, yy - 6); g.lineTo(X + len - Math.sign(len) * 8, yy + 6); g.fill(); g.globalAlpha = 1;
     }
-    g.fillStyle = '#2b2c33'; g.strokeStyle = COL[k]; g.lineWidth = 2;
+    g.fillStyle = '#2b2c33'; g.strokeStyle = fell ? BAD : COL[k]; g.lineWidth = 2;
     roundRect(g, X - cw / 2, ry - ch - 4, cw, ch, 6); g.fill(); g.stroke();
     g.fillStyle = '#55565e';
     for (const s of [-1, 1]) { g.beginPath(); g.arc(X + s * cw * 0.3, ry - 2, 5, 0, 7); g.fill(); }
     const px = X, py = ry - ch - 4, Lp = 2 * p.l * sc, tx = px + Lp * Math.sin(th), ty = py - Lp * Math.cos(th);
-    g.strokeStyle = '#e9e9ee'; g.lineWidth = Math.max(4, 0.025 * sc);
+    g.strokeStyle = fell ? BAD : '#e9e9ee'; g.lineWidth = Math.max(4, 0.025 * sc);
     g.beginPath(); g.moveTo(px, py); g.lineTo(tx, ty); g.stroke();
-    g.fillStyle = COL[k]; g.beginPath(); g.arc(px, py, 5, 0, 7); g.fill();
-    if (L.Fd) { const s = Math.sign(L.Fd); g.strokeStyle = '#ffd43b'; g.lineWidth = 3; g.beginPath(); g.moveTo(tx - s * 46, ty); g.lineTo(tx - s * 8, ty); g.stroke();
-      g.fillStyle = '#ffd43b'; g.beginPath(); g.moveTo(tx - s * 6, ty); g.lineTo(tx - s * 16, ty - 7); g.lineTo(tx - s * 16, ty + 7); g.fill(); }
-    // labels
-    g.fillStyle = COL[k]; g.font = `600 ${film ? 26 : 16}px system-ui`; g.fillText(NAME[k], 14, film ? 38 : 26);
-    g.fillStyle = '#9a9aa2'; g.font = `${film ? 18 : 12.5}px system-ui`;
-    const deg = (S.wrap(th) * 180 / Math.PI).toFixed(1).padStart(6);
-    g.fillText(`${L.mode === 'bal' ? 'balancing' : 'swing-up (energy)'}`, 14, film ? 66 : 44);
+    g.fillStyle = fell ? BAD : COL[k]; g.beginPath(); g.arc(px, py, 5, 0, 7); g.fill();
+    if (L.Fd) { const s = Math.sign(L.Fd); g.strokeStyle = '#ffd43b'; g.fillStyle = '#ffd43b'; g.lineWidth = 3; g.beginPath(); g.moveTo(tx - s * 46, ty); g.lineTo(tx - s * 8, ty); g.stroke();
+      g.beginPath(); g.moveTo(tx - s * 6, ty); g.lineTo(tx - s * 16, ty - 7); g.lineTo(tx - s * 16, ty + 7); g.fill(); }
+    const fs = film ? 26 : narrow ? 14 : 16, fs2 = film ? 18 : narrow ? 11.5 : 12.5;
+    g.fillStyle = COL[k]; g.font = `600 ${fs}px system-ui`; g.fillText(NAME[k], 14, film ? 38 : narrow ? 20 : 26);
+    g.fillStyle = '#9a9aa2'; g.font = `${fs2}px system-ui`;
+    const deg = (S.wrap(th) * 180 / Math.PI).toFixed(1);
+    const stateTxt = fell ? 'fell, uncontrolled' : L.mode === 'bal' ? 'balancing' : 'swing-up (shared energy law)';
+    g.fillText(stateTxt, 14, film ? 66 : narrow ? 36 : 44);
     g.textAlign = 'right';
-    g.fillText(`θ ${deg}°   x ${L.s[0].toFixed(2)} m   F ${L.F.toFixed(1)} N`, w - 14, film ? 38 : 26);
+    g.fillText(narrow ? `θ ${deg}°  F ${L.F.toFixed(1)} N` : `θ ${deg.padStart(6)}°   x ${L.s[0].toFixed(2)} m   F ${L.F.toFixed(1)} N`, w - 14, film ? 38 : narrow ? 20 : 26);
+    if (fell) {
+      g.fillStyle = BAD; g.font = `800 ${film ? 84 : narrow ? 34 : 54}px system-ui`;
+      g.fillText('FELL', w - 18, film ? 140 : narrow ? 70 : 100);
+      g.font = `600 ${film ? 24 : narrow ? 12 : 15}px system-ui`;
+      g.fillText(`at ${L.fellT.toFixed(1)} s`, w - 18, film ? 174 : narrow ? 88 : 122);
+    }
     g.textAlign = 'left';
   }
   function roundRect(g, x, y, w, h, r) { g.beginPath(); g.moveTo(x + r, y); g.arcTo(x + w, y, x + w, y + h, r); g.arcTo(x + w, y + h, x, y + h, r); g.arcTo(x, y + h, x, y, r); g.arcTo(x, y, x + w, y, r); g.closePath(); }
@@ -170,12 +238,12 @@ body.film #cap { display:block; font-size:30px; font-weight:600; margin-left:aut
     const q = el.dataset.q, [g, w, h] = fit(el.querySelector('canvas'));
     g.clearRect(0, 0, w, h);
     let lim = PL[q][1];
-    if (q === 'th') { let m = 5; for (const k of KINDS) for (const v of hist[k].th) m = Math.max(m, Math.abs(v)); lim = Math.min(180, Math.ceil(m / 5) * 5); }
+    if (q === 'th') { let m = 5; for (const k of KINDS) for (const v of hist[k].th) m = Math.max(m, Math.abs(v)); lim = Math.min(90, Math.ceil(m / 5) * 5); }
     if (q === 'F') lim = Math.max(5, plant.Fmax + 1);
-    const y0 = h / 2, sy = (h / 2 - 8) / lim, x0 = 64;
+    const y0 = h / 2, sy = (h / 2 - 8) / lim, x0 = w < 520 ? 40 : 64;
     g.strokeStyle = '#2a2b30'; g.lineWidth = 1; g.beginPath(); g.moveTo(x0, y0); g.lineTo(w - 8, y0); g.stroke();
     g.fillStyle = '#9a9aa2'; g.font = `${film ? 15 : 11.5}px system-ui`;
-    g.fillText(PL[q][0], x0 + 6, 16); g.fillText('+' + lim, 8, 16); g.fillText('−' + lim, 8, h - 6);
+    g.fillText(PL[q][0], x0 + 6, 16); g.fillText('+' + lim, 6, 16); g.fillText('−' + lim, 6, h - 6);
     for (const k of KINDS) {
       const a = hist[k][q]; if (!a.length) continue;
       g.strokeStyle = COL[k]; g.lineWidth = film ? 2.4 : 1.6; g.beginPath();
@@ -189,11 +257,40 @@ body.film #cap { display:block; font-size:30px; font-weight:600; margin-left:aut
     document.querySelectorAll('.plot').forEach(drawPlot);
   }
 
+  // ---- script of segments, shared by the auto tour and the film ----
+  const CAP = (s) => ($('cap').textContent = s, $('tcap').textContent = s);
+  const SEG = {
+    tilt: () => ({ dur: 3.2, start() { setPlant(1, 1, 0); reset(0.2); CAP('Tilt 0.2 rad: all three recover'); }, ev: [] }),
+    push: () => ({ dur: 3.4, start() { CAP('Same push: all three hold'); }, ev: [[0.3, () => KINDS.forEach((k) => push(k, 1.6))]] }),
+    hard: (h) => ({ dur: 5.6, start() { loadHard(h); CAP(`Hard case #${h.i}: mass ×${h.mm.toFixed(2)}, length ×${h.lm.toFixed(2)}`); }, ev: [[4.2, () => CAP(hardText(h))]] }),
+  };
+  function tourSeg(n) {   // n = 0: hard-case opening; then tilt -> push -> hard case, forever
+    if (n === 0) return SEG.hard(HARD[0]);
+    const m = (n - 1) % 3, r = Math.floor((n - 1) / 3);
+    return m === 0 ? SEG.tilt() : m === 1 ? SEG.push() : SEG.hard(HARD[(r + 1) % HARD.length]);
+  }
+  const tour = { on: !film, n: 0, t: 0, seg: null, ei: 0 };
+  function tourBegin(n) { tour.n = n; tour.t = 0; tour.ei = 0; tour.seg = tourSeg(n); tour.seg.start(); }
+  function tourTick() {
+    if (!tour.on) return;
+    tour.t += S.DT;
+    const s = tour.seg;
+    while (tour.ei < s.ev.length && s.ev[tour.ei][0] <= tour.t) { s.ev[tour.ei][1](); tour.ei++; }
+    if (tour.t >= s.dur) tourBegin(tour.n + 1);
+  }
+  function setTour(on) {
+    tour.on = on; const c = $('tourchip');
+    c.classList.toggle('on', on);
+    c.querySelector('span').innerHTML = on ? 'AUTO TOUR &middot; CLICK ANYWHERE TO TAKE OVER' : '&#9654; RESUME TOUR';
+    if (on) tourBegin(tour.n + 1); else CAP('');
+  }
+
   // ---- UI ----
   function bindSlider(id, get, set, fmt) {
     const i = $(id), o = i.nextElementSibling; i.value = get(); o.textContent = fmt(+i.value);
     i.addEventListener('input', () => { set(+i.value); o.textContent = fmt(+i.value); });
   }
+  let hardIdx = 0;
   if (!film) {
     bindSlider('sM', () => plant.mm, (v) => { plant.mm = v; applyPlant(); }, (v) => v.toFixed(2));
     bindSlider('sL', () => plant.lm, (v) => { plant.lm = v; applyPlant(); }, (v) => v.toFixed(2));
@@ -201,24 +298,30 @@ body.film #cap { display:block; font-size:30px; font-weight:600; margin-left:aut
     bindSlider('sF', () => plant.Fmax, (v) => { plant.Fmax = v; applyPlant(); }, (v) => v.toFixed(0));
     $('sSat').addEventListener('change', (e) => { plant.sat = e.target.checked; applyPlant(); });
     bindSlider('gP', () => pid.Kp, (v) => (pid.Kp = v), (v) => v.toFixed(1));
-    bindSlider('gI', () => pid.Ki, (v) => (pid.Ki = v), (v) => v.toFixed(1));
     bindSlider('gD', () => pid.Kd, (v) => (pid.Kd = v), (v) => v.toFixed(1));
-    $('bTilt').onclick = () => reset(0.2);
-    $('bSwing').onclick = () => reset(Math.PI);
+    bindSlider('gI', () => pid.Ki, (v) => (pid.Ki = v), (v) => v.toFixed(1));
+    $('bTilt').onclick = () => { setPlant(plant.mm, plant.lm, plant.noise); reset(0.2); CAP(''); };
+    $('bSwing').onclick = () => { reset(Math.PI, 'clamp'); CAP(''); };
     $('bPush').onclick = () => KINDS.forEach((k) => push(k, 1.5));
+    $('bHard').onclick = () => { const h = HARD[hardIdx++ % HARD.length]; loadHard(h); CAP(`Hard case #${h.i}: ${hardText(h)} (push at 2 s)`); };
     document.querySelectorAll('.cart').forEach((el) => el.addEventListener('click', (e) => {
       const r = el.getBoundingClientRect(); push(el.dataset.k, e.clientX - r.left > r.width / 2 ? -1.5 : 1.5);
     }));
+    $('tourchip').addEventListener('pointerdown', (e) => { e.stopPropagation(); setTour(!tour.on); });
+    const take = (e) => { if (tour.on && !(e.target.closest && e.target.closest('#tourchip'))) setTour(false); };
+    document.addEventListener('pointerdown', take, true);
+    document.addEventListener('keydown', take, true);
   }
   // scoreboard
-  const R = D.results, f = (v, d) => (v == null ? '–' : v.toFixed(d));
-  $('score').innerHTML = `<tr><th></th>${KINDS.map((k) => `<th class="k-${k}">${k.toUpperCase()}</th>`).join('')}</tr>` +
+  const ci = (k) => `${R.sweep[k].ci95[0].toFixed(1)}–${R.sweep[k].ci95[1].toFixed(1)}`;
+  $('score').innerHTML = `<tr><th></th>${KINDS.map((k) => `<th class="k-${k}">${SHORT[k]}</th>`).join('')}</tr>` +
     [['Settling time (s)', (k) => f(R.standard[k].settle_s, 2)], ['Overshoot (%)', (k) => f(R.standard[k].overshoot_pct, 0)],
      ['RMS angle (°)', (k) => f(R.standard[k].rms_deg, 2)], ['Effort ∫F²dt', (k) => f(R.standard[k].effort, 1)],
-     [`Survived, ${R.n} random runs`, (k) => f(R.sweep[k].survived_pct, 0) + '%'], ['Sweep RMS angle (°)', (k) => f(R.sweep[k].rms_deg, 2)]]
+     [`Survived, ${R.n} random runs`, (k) => f(R.sweep[k].survived_pct, 1) + '%'], ['95% CI (Wilson)', ci],
+     ['Sweep RMS angle (°)', (k) => f(R.sweep[k].rms_deg, 2)]]
       .map(([n, fn]) => `<tr><td>${n}</td>${KINDS.map((k) => `<td>${fn(k)}</td>`).join('')}</tr>`).join('');
 
-  // ---- cross-check: replay the Python reference runs in this simulator ----
+  // ---- cross-check: replay the Python reference runs (and the hard cases) in this simulator ----
   function crossCheck() {
     let eth = 0, ex = 0, eF = 0;
     const cases = KINDS.map((k) => [k, new S.Loop(k, gains(k), D.P, [0, 0, 0.15, 0], { noise: 0.005, seed: 7, pushes: [[1.0, 0.1, 1.0]] }), D.ref[k], 400])
@@ -229,52 +332,64 @@ body.film #cap { display:block; font-size:30px; font-weight:600; margin-left:aut
         L.step(); eF = Math.max(eF, Math.abs(L.F - ref.F[i]));
       }
     }
+    // hard cases: the browser must reproduce which controllers fell in the Python sweep
+    let hardOk = true;
+    for (const h of R.hard) {
+      for (const k of KINDS) {
+        const p = Object.assign({}, D.P, { m: D.P.m * h.mm, l: D.P.l * h.lm });
+        const L = new S.Loop(k, gains(k), p, [0, 0, h.th0, 0], { noise: D.sigma, seed: h.seed, pushes: [[2.0, 0.1, h.push]], rails: 'fail', design: D.P });
+        for (let i = 0; i < 600 && L.step(); i++);
+        if (L.failed !== h.fell.includes(k)) hardOk = false;
+      }
+    }
     const Kjs = S.dlqr(D.Ad, D.Bd, D.Q, D.R), eK = Math.max(...Kjs.map((v, i) => Math.abs(v - D.K[i])));
-    const ok = eth < 1e-6 && ex < 1e-6 && eK < 1e-6;
-    window.CHECK = { eth, ex, eF, eK, ok };
+    const ok = eth < 1e-6 && ex < 1e-6 && eK < 1e-6 && hardOk;
+    window.CHECK = { eth, ex, eF, eK, hardOk, ok };
     $('check').textContent = `Browser vs Python, 4 reference runs: max |Δθ| ${eth.toExponential(1)} rad, |Δx| ${ex.toExponential(1)} m. ` +
-      `LQR gain from the browser's own Riccati iteration vs scipy: max |ΔK| ${eK.toExponential(1)}. ${ok ? '✓' : '✗'}`;
+      `${R.hard.length} hard cases: same fall/hold outcome as Python ${hardOk ? '✓' : '✗'}. LQR gain vs scipy: max |ΔK| ${eK.toExponential(1)}. ${ok ? '✓' : '✗'}`;
   }
   crossCheck();
 
   // ---- run ----
-  reset(0.2);
   if (!film) {
+    setPlant(1, 1, 0); tourBegin(0);
     let last = performance.now(), acc = 0;
     (function loop(now) {
       acc += Math.min(0.1, (now - last) / 1000); last = now;
-      while (acc >= S.DT) { stepAll(); acc -= S.DT; }
+      while (acc >= S.DT) { stepAll(); tourTick(); acc -= S.DT; }
       draw(); requestAnimationFrame(loop);
     })(last);
   } else {
-    // Scripted film timeline, stepped frame by frame by the capture script (window.FILM.frame(i) at 30 fps).
-    const cap = $('cap');
-    const say = (s) => { cap.textContent = s; };
-    let t = 0;
-    const events = [
-      [0.0, () => { say('Same plant, same 0.2 rad tilt'); reset(0.2); }],
-      [3.2, () => say('Same push at the pole tip')], [3.6, () => KINDS.forEach((k) => push(k, 1.6))],
-      [6.6, () => { say('Pole 2.5× heavier, 1.4× longer — gains unchanged'); plant.mm = 2.5; plant.lm = 1.4; applyPlant(); }],
-      [8.4, () => KINDS.forEach((k) => push(k, -2.0))],
-      [11.6, () => { say('Swing-up from hanging: energy pumping, then catch'); plant.mm = 1; plant.lm = 1; reset(Math.PI); }],
-      [20.0, () => {
-        say(''); const e = $('end'); e.style.display = 'flex';
-        e.innerHTML = `<div class="big">${R.n} randomised runs · mass, length, noise, push</div>` +
-          KINDS.map((k) => `<div class="row"><span style="color:${COL[k]}">${NAME[k]}</span> — survived ${R.sweep[k].survived_pct.toFixed(0)}%, RMS ${R.sweep[k].rms_deg.toFixed(1)}°</div>`).join('') +
-          `<div class="mut">Same simulator in Python and in the browser · 0smallcat0.github.io/mechanical-design-demos</div>`;
-      }],
-    ];
-    let ei = 0;
+    // Scripted film, stepped frame by frame by the capture script (window.FILM.frame(i) at 30 fps).
+    const plan = [HARD[0], 'tilt', 'push', HARD[1], HARD[2]].map((x) => (typeof x === 'string' ? SEG[x]() : SEG.hard(x)));
+    let at = 0; plan.forEach((s) => { s.at = at; at += s.dur; });
+    const END = at, FILM_END = END + 4.2;
+    let si = 0, t = 0, started = -1, ei = 0;
+    window.FILM_LEN = FILM_END;
     window.FILM = {
       frame(i) {
         const target = i / 30;
-        while (ei < events.length && events[ei][0] <= target + 1e-9) { events[ei][1](); ei++; }
-        while (t < target - 1e-9) { stepAll(); t += S.DT; }
+        while (t < target - 1e-9 && t < END) {
+          const s = plan[si];
+          if (started !== si) { s.start(); started = si; ei = 0; }
+          stepAll(); t += S.DT;
+          const lt = t - s.at;
+          while (ei < s.ev.length && s.ev[ei][0] <= lt + 1e-9) { s.ev[ei][1](); ei++; }
+          if (lt >= s.dur - 1e-9 && si < plan.length - 1) si++;
+        }
+        if (started < 0) { plan[0].start(); started = 0; }
+        if (target >= END) {
+          CAP(''); const e = $('end'); e.style.display = 'flex';
+          const sw = R.sweep;
+          e.innerHTML = `<div class="big">${R.n} randomised runs · same scenarios for all three</div>` +
+            KINDS.map((k) => `<div class="row"><span style="color:${COL[k]}">${NAME[k]}</span> — survived ${f(sw[k].survived_pct, 1)}% (95% CI ${ci(k)})</div>`).join('') +
+            `<div class="mut">Same simulator in Python and in the browser · 0smallcat0.github.io/mechanical-design-demos</div>`;
+        }
         draw();
       },
     };
   }
-  window.LIVE = { loops, push, reset };
+  window.LIVE = { loops, push, reset, loadHard, HARD, tour, setTour };
 })();
 </script>
 </body>

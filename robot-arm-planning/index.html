@@ -5,31 +5,25 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>6-DOF Arm — inverse kinematics and RRT-Connect motion planning · 六軸手臂逆運動學與路徑規劃</title>
 <link rel="stylesheet" href="../style.css">
+<meta property="og:title" content="6-DOF arm: IK and motion planning">
+<meta property="og:description" content="Drag a target and a six-axis arm solves inverse kinematics live; RRT-Connect plans a path over a wall.">
+<meta property="og:image" content="https://0smallcat0.github.io/mechanical-design-demos/robot-arm-planning/media/og.jpg">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" href="../favicon.svg">
 <style> code, .eq { font-family: ui-monospace, "Cascadia Code", Consolas, monospace; font-size: 15px; } .eq { display: block; padding: 10px 14px; border: 1px solid var(--line); border-radius: 10px; margin: 10px 0; overflow-x: auto; white-space: pre; } </style>
 </head>
 <body>
 <header>
   <a href="../">&larr; All demos · 所有作品</a>
   <h1>6-DOF arm: IK and motion planning · 六軸手臂逆運動學與路徑規劃</h1>
-  <p class="lede">Drag a target and the arm solves inverse kinematics live. Ask for a move and it plans a collision-free path around obstacles, shortens it and times it within every joint's speed and acceleration limits. Everything runs in the browser from one small kinematics and planning library.</p>
-  <p class="lede">拖動目標，手臂即時解逆運動學；按下規劃，繞過障礙找出無碰撞路徑，縮短後在各軸速度與加速度限制內排出軌跡。</p>
+  <p class="lede">Drag a target and the arm solves inverse kinematics live; ask for a move and it plans a collision-free path over a wall.</p>
+  <video src="demo.mp4" autoplay muted loop playsinline preload="auto" poster="media/hero.jpg"></video>
+  <p style="margin:18px 0 0"><a class="button" href="live.html" style="font-size:19px;padding:14px 28px">Open the interactive model</a></p>
 </header>
 
 <main>
 <section>
-  <h2>Interactive model · 互動模型</h2>
-  <img src="media/hero.png" alt="Robot arm over a wall between two tables, with the two RRT-Connect trees and the shortcut path">
-  <p>Move or rotate the target, switch between damped least squares and the Jacobian transpose, plan to the target, or run a full pick and place over the wall. Built for a desktop screen.</p>
-  <p><a class="button" href="live.html">Open the interactive model · 打開互動模型</a></p>
-</section>
-
-<section>
-  <h2>Demo film · 示範影片</h2>
-  <video src="demo.mp4" controls preload="metadata" poster="media/hero.png"></video>
-</section>
-
-<section>
-  <h2>Measured results · 實測數字</h2>
+  <h2>Measured results</h2>
   <table>
     <tr><th>IK round trip</th><td>1000 / 1000 random reachable poses solved, worst position error 0.0098 mm, worst orientation error 0.0055°; median 14 iterations</td></tr>
     <tr><th>Local tracking (seed ±0.15 rad)</th><td>Damped least squares 300 / 300 in 3.0 iterations on average; Jacobian transpose 235 / 300 in 406</td></tr>
@@ -42,7 +36,7 @@
 </section>
 
 <section>
-  <h2>Method · 方法</h2>
+  <details><summary><b>How it works</b></summary>
   <p><b>Arm.</b> A generic six-axis arm with a spherical wrist: 0.30 m to the shoulder, 0.35 m upper arm, 0.32 m forearm to the wrist centre, 0.10 m tool. Forward kinematics chains one rotation per joint; the same chain drives the 3D model, the Jacobian and the collision capsules.</p>
   <p><b>Inverse kinematics.</b> Geometric Jacobian, with orientation rows scaled by a 0.3 m length so millimetres and radians weigh alike. The step is the Levenberg–Marquardt form of damped least squares, with the damping tied to the remaining error (Sugihara 2011):</p>
   <span class="eq">Δq = (JᵀJ + λ²I)⁻¹ Jᵀe,    λ² = ½ eᵀe + 10⁻⁶</span>
@@ -53,10 +47,11 @@
   <p><b>Time scaling.</b> Each straight joint-space segment is synchronised so every joint starts and stops together, with either a quintic or a trapezoidal profile. The duration is the shortest that keeps every joint within its limits:</p>
   <span class="eq">s(τ) = 10τ³ − 15τ⁴ + 6τ⁵,   T = maxᵢ max( 1.875·|Δqᵢ| / vᵢ ,  √(5.774·|Δqᵢ| / aᵢ) )</span>
   <p>Straight-line approach and retreat moves are solved by IK at 12 points and timed as one quintic along the whole line, so the tool does not stop at each point.</p>
+</details>
 </section>
 
 <section>
-  <h2>Source · 原始碼</h2>
+  <h2>Source</h2>
   <ul>
     <li><a href="js/kin.js">kin.js</a>: forward kinematics, Jacobian, damped least squares and Jacobian-transpose IK, manipulability</li>
     <li><a href="js/plan.js">plan.js</a>: capsule collision checks, RRT-Connect, shortcutting, quintic and trapezoidal time scaling</li>

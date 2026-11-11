@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 300" font-family="system-ui,Segoe UI,sans-serif">
+<rect width="900" height="300" rx="12" fill="#17181b"/>
+<text x="24" y="34" fill="#f2f2f4" font-size="18" font-weight="600">Survival over 2000 random runs, with 95% confidence interval</text>
+<line x1="150.0" y1="58" x2="150.0" y2="236" stroke="#2a2b30"/><text x="150.0" y="258" fill="#9a9aa2" font-size="14" text-anchor="middle">76%</text>
+<line x1="251.66666666666666" y1="58" x2="251.66666666666666" y2="236" stroke="#2a2b30"/><text x="251.66666666666666" y="258" fill="#9a9aa2" font-size="14" text-anchor="middle">78%</text>
+<line x1="353.3333333333333" y1="58" x2="353.3333333333333" y2="236" stroke="#2a2b30"/><text x="353.3333333333333" y="258" fill="#9a9aa2" font-size="14" text-anchor="middle">80%</text>
+<line x1="455.0" y1="58" x2="455.0" y2="236" stroke="#2a2b30"/><text x="455.0" y="258" fill="#9a9aa2" font-size="14" text-anchor="middle">82%</text>
+<line x1="556.6666666666666" y1="58" x2="556.6666666666666" y2="236" stroke="#2a2b30"/><text x="556.6666666666666" y="258" fill="#9a9aa2" font-size="14" text-anchor="middle">84%</text>
+<line x1="658.3333333333334" y1="58" x2="658.3333333333334" y2="236" stroke="#2a2b30"/><text x="658.3333333333334" y="258" fill="#9a9aa2" font-size="14" text-anchor="middle">86%</text>
+<line x1="760.0" y1="58" x2="760.0" y2="236" stroke="#2a2b30"/><text x="760.0" y="258" fill="#9a9aa2" font-size="14" text-anchor="middle">88%</text>
+<text x="24" y="101" fill="#4dabf7" font-size="16" font-weight="600">LQR</text>
+<line x1="442.7" y1="96" x2="608.2" y2="96" stroke="#4dabf7" stroke-width="4" stroke-linecap="round"/>
+<circle cx="528.7" cy="96" r="8" fill="#4dabf7"/>
+<text x="622.2" y="101" fill="#f2f2f4" font-size="14">83.5%  [81.8, 85.0]</text>
+<text x="24" y="157" fill="#51cf66" font-size="16" font-weight="600">RL (CEM)</text>
+<line x1="376.8" y1="152" x2="547.2" y2="152" stroke="#51cf66" stroke-width="4" stroke-linecap="round"/>
+<circle cx="465.2" cy="152" r="8" fill="#51cf66"/>
+<text x="561.2" y="157" fill="#f2f2f4" font-size="14">82.2%  [80.5, 83.8]</text>
+<text x="24" y="213" fill="#ff7a2f" font-size="16" font-weight="600">PD+cart</text>
+<line x1="258.7" y1="208" x2="437.0" y2="208" stroke="#ff7a2f" stroke-width="4" stroke-linecap="round"/>
+<circle cx="350.8" cy="208" r="8" fill="#ff7a2f"/>
+<text x="451.0" y="213" fill="#f2f2f4" font-size="14">80.0%  [78.1, 81.6]</text>
+<text x="24" y="284" fill="#9a9aa2" font-size="13">Axis starts at 76%. Dot = survival rate, bar = Wilson 95% CI.</text></svg>

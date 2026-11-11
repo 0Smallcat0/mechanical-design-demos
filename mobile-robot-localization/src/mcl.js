@@ -17,6 +17,8 @@ export class ParticleFilter {
     this.maxRange = opts.maxRange ?? 15;
     this.beamStride = opts.beamStride ?? 1;
     this.temper = opts.temper ?? 0.5;                      // flattens the joint likelihood of correlated beams
+    this.neffTarget = 0;                                   // > 0: adaptive tempering, the exponent is lowered until Neff stays above this fraction of N
+    this.jitter = [0, 0];                                  // m, rad: roughening added when resampling (set during global search)
     this.aSlow = opts.aSlow ?? 0.02; this.aFast = opts.aFast ?? 0.3;
     this.inject = opts.inject ?? true;
     this.x = new Float64Array(this.N); this.y = new Float64Array(this.N); this.th = new Float64Array(this.N);
@@ -86,11 +88,25 @@ export class ParticleFilter {
       }
       const per = beams.length ? s / beams.length : 0;
       avgLik += Math.exp(per);
-      logw[n] = this.temper * s;
+      logw[n] = s;
     }
     avgLik /= N;
+    // adaptive tempering (annealed particle filter): during global search take the largest exponent that keeps Neff above the target,
+    // so one lucky particle cannot take all the weight on the first scans and the cloud keeps several candidate places alive
+    const lw0 = new Float64Array(N); for (let n = 0; n < N; n++) lw0[n] = Math.log(this.w[n] + 1e-300);
+    const neffAt = b => {
+      let m = -Infinity; for (let n = 0; n < N; n++) { const v = lw0[n] + b * logw[n]; if (v > m) m = v; }
+      let a = 0, c = 0; for (let n = 0; n < N; n++) { const e = Math.exp(lw0[n] + b * logw[n] - m); a += e; c += e * e; }
+      return a * a / c;
+    };
+    let beta = this.temper;
+    if (this.neffTarget > 0 && neffAt(beta) < this.neffTarget * N) {
+      let lo = 0, hi = beta; for (let it = 0; it < 14; it++) { const mid = (lo + hi) / 2; if (neffAt(mid) >= this.neffTarget * N) lo = mid; else hi = mid; }
+      beta = Math.max(lo, this.betaMin ?? 0.002);
+    }
+    this.beta = beta;
     let mx = -Infinity;
-    for (let n = 0; n < N; n++) { logw[n] += Math.log(this.w[n] + 1e-300); if (logw[n] > mx) mx = logw[n]; }
+    for (let n = 0; n < N; n++) { logw[n] = lw0[n] + beta * logw[n]; if (logw[n] > mx) mx = logw[n]; }
     let sum = 0;
     for (let n = 0; n < N; n++) { this.w[n] = Math.exp(logw[n] - mx); sum += this.w[n]; }
     let s2 = 0;
@@ -113,7 +129,10 @@ export class ParticleFilter {
       const u = r + m * step;
       while (u > c && i < N - 1) { i++; c += this.w[i]; }
       if (pInject > 0 && this.rng.next() < pInject) { const p = this.randomPose(); nx[m] = p[0]; ny[m] = p[1]; nt[m] = p[2]; injected++; }
-      else { nx[m] = this.x[i]; ny[m] = this.y[i]; nt[m] = this.th[i]; }
+      else {
+        nx[m] = this.x[i]; ny[m] = this.y[i]; nt[m] = this.th[i];
+        if (this.jitter[0] > 0) { nx[m] += this.rng.gauss(this.jitter[0]); ny[m] += this.rng.gauss(this.jitter[0]); nt[m] = wrap(nt[m] + this.rng.gauss(this.jitter[1])); }
+      }
     }
     this.x = nx; this.y = ny; this.th = nt; this.N = M; this.w = new Float64Array(M).fill(1 / M);
     this.lastInjected = injected;

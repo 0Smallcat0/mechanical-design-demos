@@ -7,6 +7,8 @@ import { SCENE } from './scene.js';
 
 const FILM = new URLSearchParams(location.search).has('film');
 if (FILM) document.body.classList.add('film');
+const CLEAN = new URLSearchParams(location.search).has('clean'); // scene only, for stills
+if (CLEAN) document.body.classList.add('clean');
 THREE.Object3D.DEFAULT_UP.set(0, 0, 1);
 
 // ---------- renderer / scene ----------
@@ -20,9 +22,9 @@ const scene = new THREE.Scene();
 scene.background = new THREE.Color(0x0f1115);
 scene.fog = new THREE.Fog(0x0f1115, 3.5, 8);
 const camera = new THREE.PerspectiveCamera(40, 1, 0.01, 50);
-camera.position.set(1.35, -1.25, 0.95);
+camera.position.set(1.75, -1.35, 1.04);
 const orbit = new OrbitControls(camera, renderer.domElement);
-orbit.target.set(0.25, 0, 0.3); orbit.enableDamping = true; orbit.update();
+orbit.target.set(0.33, 0, 0.4); orbit.enableDamping = true; orbit.update();
 
 scene.add(new THREE.HemisphereLight(0xdfe6ff, 0x20242c, 0.9));
 const key = new THREE.DirectionalLight(0xffffff, 2.2); key.position.set(1.5, -1.2, 2.5); key.castShadow = true;
@@ -119,7 +121,8 @@ function getTarget() {
   target.updateMatrix(); const e = target.matrix.elements;
   return { R: [e[0], e[4], e[8], e[1], e[5], e[9], e[2], e[6], e[10]], p: [e[12], e[13], e[14]] };
 }
-setTarget(fk(HOME).tool);
+const DEF_TARGET = SCENE.poseB; // behind the wall: the first Plan has to go around it
+setTarget(DEF_TARGET);
 let gizmo = null;
 if (!FILM) {
   gizmo = new TransformControls(camera, renderer.domElement);
@@ -154,6 +157,7 @@ function drawTrees(trees, path, upto = Infinity) {
 // ---------- planning ----------
 const $ = (id) => document.getElementById(id);
 const world = () => makeWorld(SCENE.obstacles, { attached: carrying ? { offset: 0, r: 0.035 } : null });
+let lastTarget = '';
 let plan = null; // { traj, t, steps: [...], stepIdx }
 let planSeed = 1;
 
@@ -183,12 +187,42 @@ function cartesian(q0, pose) {
   return path;
 }
 
+// ---------- auto tour: loops pick & place until the first click ----------
+const tourEl = $('tour');
+const tour = {
+  on: false, wait: 0, loop: 0,
+  say(t) { tourEl.innerHTML = `<b>AUTO TOUR</b><span>click anywhere to take over</span><u>${t || ''}</u>`; },
+  start() {
+    if (FILM) return;
+    this.on = true; this.wait = 0; tourEl.style.display = ''; this.say('Pick and place over a wall');
+  },
+  next() { // called when the plan queue is empty
+    const pp = pickPlaceSteps(11 + (this.loop++ % 5) * 3);
+    if (!pp) { this.wait = 1; return; }
+    showPlanStats(pp.s2); $('status').textContent = 'Auto tour: pick & place over the wall.';
+    runSteps(pp.steps);
+  },
+  stop() { // take over: stop the motion, send the arm home, put the cube and the target back
+    if (!this.on) return;
+    this.on = false; this.stoppedAt = window.__ev; plan = null; plotData = null; treeGroup.clear();
+    const g = goalConfig(SCENE.poseA, HOME, makeWorld(SCENE.obstacles), 11); // arm over the cube, target behind the wall
+    q = g ? g.q : HOME.slice(); carrying = false; grip = 0.04; cube.position.set(...SCENE.cube.pick);
+    setTarget(DEF_TARGET); lastTarget = JSON.stringify(getTarget());
+    $('status').textContent = 'Arm over the cube. Press Plan to reach the target behind the wall.';
+    tourEl.innerHTML = '<b>MANUAL</b><span>click here to restart the auto tour</span>';
+  },
+};
+tourEl.addEventListener('pointerdown', (e) => { if (!tour.on && e.timeStamp !== tour.stoppedAt) { e.stopPropagation(); e.preventDefault(); resetForTour(); tour.start(); } });
+function resetForTour() { plan = null; treeGroup.clear(); q = HOME.slice(); carrying = false; grip = 0.04; cube.position.set(...SCENE.cube.pick); }
+
 function runSteps(steps) { plan = { steps, i: -1, t: 0, traj: null }; nextStep(); }
 function nextStep() {
   plan.i++;
   const s = plan.steps[plan.i];
-  if (!s) { plan = null; return; }
+  if (!s) { plan = null; if (tour.on) tour.wait = 1.8; return; }
   if (s.action) { s.action(); return nextStep(); }
+  if (s.wall && tour.on) { drawTrees(s.trees, s.path); } else if (tour.on && plan.i !== 5) treeGroup.clear();
+  if (tour.on) tour.say(s.cap);
   plan.traj = s.cart ? timeScaleBlend(s.path) : timeScale(s.path, { profile: $('profile')?.value || 'quintic' }); plan.t = 0;
   plotData = plan.traj;
 }
@@ -223,11 +257,11 @@ function pickPlaceSteps(seedBase = 11) {
   const s3 = planTo(qB, fk(HOME).tool, w0, seedBase + 2);
   const homePath = s3.ok ? s3.path : [qB, HOME];
   return { s1, s2, steps: [
-    { path: s1.path, label: 'Plan to pre-grasp' }, { path: down1, label: 'Approach (straight-line Cartesian)', cart: true },
+    { path: s1.path, label: 'Plan to pre-grasp', cap: 'Plan to the cube' }, { path: down1, label: 'Approach (straight-line Cartesian)', cart: true, cap: 'Straight-line approach' },
     { action: () => { grip = 0.03; carrying = true; } },
-    { path: up1, label: 'Lift', cart: true }, { path: s2.path, label: 'Plan over the wall (payload in collision model)' }, { path: down2, label: 'Place', cart: true },
+    { path: up1, label: 'Lift', cart: true, cap: 'Grip and lift' }, { path: s2.path, label: 'Plan over the wall (payload in collision model)', cap: 'RRT-Connect plans over the wall', wall: true, trees: s2.raw.trees }, { path: down2, label: 'Place', cart: true, cap: 'Place the cube' },
     { action: () => { carrying = false; grip = 0.04; cube.position.set(...SCENE.cube.place); } },
-    { path: up2, label: 'Retreat', cart: true }, { path: homePath, label: 'Home' },
+    { path: up2, label: 'Retreat', cart: true, cap: 'Retreat' }, { path: homePath, label: 'Home', cap: 'Back home' },
   ] };
 }
 
@@ -289,7 +323,7 @@ if (!FILM) {
   const setMode = (m) => { gizmo.setMode(m); $('mT').classList.toggle('on', m === 'translate'); $('mR').classList.toggle('on', m === 'rotate'); };
   $('mT').onclick = () => setMode('translate'); $('mR').onclick = () => setMode('rotate');
   addEventListener('keydown', (e) => { if (e.key === 't') setMode('translate'); if (e.key === 'r') setMode('rotate'); });
-  $('tHome').onclick = () => setTarget(fk(HOME).tool);
+  $('tHome').onclick = () => { setTarget(DEF_TARGET); lastTarget = JSON.stringify(getTarget()); };
   $('plan').onclick = doPlan;
   $('home').onclick = () => { setTarget(fk(HOME).tool); doPlan(); };
   $('pick').onclick = () => {
@@ -304,17 +338,24 @@ if (!FILM) {
 }
 
 // ---------- resize / loop ----------
+let userOrbited = false;
+orbit.addEventListener('start', () => { userOrbited = true; });
 function resize() {
   const w = host.clientWidth, h = host.clientHeight;
   renderer.setSize(w, h, false); renderer.domElement.style.width = w + 'px'; renderer.domElement.style.height = h + 'px';
   camera.aspect = w / h; camera.updateProjectionMatrix();
+  if (!FILM && !userOrbited) { // keep the whole arm in frame on narrow screens
+    const k = Math.max(0.92, 0.8 / camera.aspect), off = new THREE.Vector3(1.45, -1.35, 0.62).multiplyScalar(k);
+    camera.position.copy(orbit.target).add(off); orbit.update();
+  }
 }
 addEventListener('resize', resize); resize();
 
-let last = performance.now(), lastTarget = '';
+let last = performance.now();
 function tick(now) {
   const dt = Math.min(0.05, (now - last) / 1000); last = now;
   let ikRes = null;
+  if (tour.on && !plan) { tour.wait -= dt; if (tour.wait <= 0) { tour.next(); if (!plan) tour.wait = 1; } }
   if (plan && plan.traj) {
     plan.t += dt; const s = sample(plan.traj, Math.min(plan.t, plan.traj.duration)); q = s.q;
     if (plan.t >= plan.traj.duration) nextStep();
@@ -404,5 +445,8 @@ if (FILM) {
   };
   window.__ready = true;
 } else {
+  if (CLEAN) { gizmo.getHelper().visible = false; target.visible = false; tour.on = true; tour.stop(); tourEl.style.display = 'none'; } else tour.start();
+  addEventListener('pointerdown', (e) => { if (!tour.on) return; window.__ev = e.timeStamp; tour.stop(); }, true);
+  lastTarget = JSON.stringify(getTarget());
   requestAnimationFrame(tick);
 }

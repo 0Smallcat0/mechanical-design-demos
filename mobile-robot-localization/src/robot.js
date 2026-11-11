@@ -43,7 +43,7 @@ export function scanLidar(grid, pose, rng, cfg = LIDAR) {
 // Pure pursuit (Coulter 1992): steer along the arc through a look-ahead point on the path.
 export class PurePursuit {
   constructor(opts = {}) {
-    this.L = opts.lookahead ?? 0.7; this.vMax = opts.vMax ?? 0.7; this.goalTol = opts.goalTol ?? 0.12;
+    this.L = opts.lookahead ?? 0.5; this.vMax = opts.vMax ?? 0.7; this.goalTol = opts.goalTol ?? 0.12;
     this.path = null; this.i = 0; this.target = null;
   }
   setPath(path) { this.path = path; this.i = 0; this.target = null; }

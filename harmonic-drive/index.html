@@ -4,63 +4,58 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>SW-100 Strain Wave Gear — design, analysis, interactive teardown · SW-100 諧波減速機</title>
+<meta property="og:title" content="SW-100 strain wave gear, 100 : 1">
+<meta property="og:description" content="Parametric CAD, drawings, tooth-clearance and fatigue analysis, renders and an interactive 3D teardown of a 100:1 strain wave gear.">
+<meta property="og:image" content="https://0smallcat0.github.io/mechanical-design-demos/harmonic-drive/media/og.jpg">
+<link rel="icon" href="../favicon.svg">
 <link rel="stylesheet" href="../style.css">
 </head>
 <body>
 <header>
   <a href="../">&larr; All demos · 所有作品</a>
   <h1>SW-100 strain wave gear, 100 : 1 · 諧波減速機</h1>
-  <p class="lede">A thin steel cup with 200 teeth is bent into an oval and rolled inside a 202-tooth ring. From parameters to STEP, drawings, a coded tooth-interference check, fatigue numbers, renders and an interactive 3D teardown, all from one source model.</p>
-  <p class="lede">100:1 諧波減速機：設計、工程圖、齒干涉與疲勞分析、算圖與互動拆解。</p>
+  <video src="product-film.mp4" autoplay muted loop playsinline poster="media/poster.jpg"></video>
+  <p class="lede">A thin steel cup with 200 teeth is flexed into an oval and rolled inside a 202-tooth ring: 100 : 1 in one stage.</p>
+  <p><a class="button" href="live.html">Open the 3D model · 打開互動模型</a></p>
 </header>
 
 <main>
 <section>
-  <h2>Interactive teardown · 互動拆解</h2>
-  <p>Explode the parts, exaggerate the flex 20×, cut it open and watch the output turn once for every 100 input turns. Runs offline in one HTML file.</p>
-  <p><a class="button" href="live.html">Open the interactive model · 打開互動模型</a></p>
-</section>
-
-<section>
-  <h2>30-second product film · 30 秒產品片</h2>
-  <p>The gear, its drawings, then every part going in along one axis and the stage running.</p>
-  <video src="product-film.mp4" controls preload="metadata" poster="media/poster.jpg"></video>
-</section>
-
-<section>
-  <h2>34-second tour of the interactive model · 34 秒互動模型導覽</h2>
-  <video src="tour.mp4" controls preload="metadata" poster="media/tour-poster.jpg"></video>
+  <h2>Films · 影片</h2>
+  <p>The 33-second product film is above; this is a 34-second tour of the interactive model.</p>
+  <video src="tour.mp4" controls preload="none" poster="media/tour-poster.jpg"></video>
 </section>
 
 <section>
   <h2>Key figures · 關鍵數字</h2>
+  <details><summary>How it works: numbers and checks</summary>
   <table>
     <tr><th>Ratio</th><td>100 : 1 (flexspline 200 teeth, circular spline 202, module 0.25)</td></tr>
     <tr><th>Input / output</th><td>3000 rpm in, 30 rpm out in the opposite direction; 7 N·m rated output</td></tr>
     <tr><th>Tooth clearance</th><td>min radial gap 0.015 mm over 60,000 samples at 4 wave-generator angles; 3D boolean check: no interference</td></tr>
-    <tr><th>Mesh</th><td>0.24 mm engagement on the major axis, about 97 teeth inside the overlap band</td></tr>
+    <tr><th>Mesh</th><td>0.24 mm engagement on the major axis, 97 teeth inside the overlap band (not all carry load)</td></tr>
     <tr><th>Flexspline fatigue</th><td>peak bending strain 5.7×10⁻⁴, root stress 234 MPa, Goodman n = 2.03 — 10⁹ cycles in about 116 days at full speed</td></tr>
     <tr><th>Wave generator</th><td>28.9 N to bend the cup, about 9.7 N per loaded tooth at rated torque</td></tr>
   </table>
+  </details>
   <p>Full results and what is not covered: <a href="analysis.json">analysis.json</a></p>
 </section>
 
 <section>
   <h2>Renders · 算圖</h2>
   <div class="grid">
-    <img src="media/render_assembled.jpg" alt="Assembled strain wave gear, studio render">
-    <img src="media/render_exploded.jpg" alt="Exploded view along the axis">
-    <img src="media/render_section.jpg" alt="Quarter section through cup, bearing and cam">
-    <img src="media/render_closeup.jpg" alt="Open end: oval flexspline meshing with the ring">
-  </div>
+    <img loading="lazy" src="media/render_assembled.jpg" alt="Assembled strain wave gear, studio render">
+    <img loading="lazy" src="media/render_exploded.jpg" alt="Exploded view along the axis">
+    <img loading="lazy" src="media/render_section.jpg" alt="Quarter section through cup, bearing and cam">
+      </div>
 </section>
 
 <section>
   <h2>Engineering drawings · 工程圖</h2>
   <div class="grid">
-    <a href="drawings/SW-100_01_assembly.pdf"><img src="drawings/SW-100_01_assembly.png" alt="Assembly drawing"></a>
-    <a href="drawings/SW-100_02_flexspline.pdf"><img src="drawings/SW-100_02_flexspline.png" alt="Flexspline drawing"></a>
-    <a href="drawings/SW-100_03_circular_spline.pdf"><img src="drawings/SW-100_03_circular_spline.png" alt="Circular spline drawing"></a>
+    <a href="drawings/SW-100_01_assembly.pdf"><img loading="lazy" src="drawings/SW-100_01_assembly.png" alt="Assembly drawing"></a>
+    <a href="drawings/SW-100_02_flexspline.pdf"><img loading="lazy" src="drawings/SW-100_02_flexspline.png" alt="Flexspline drawing"></a>
+    <a href="drawings/SW-100_03_circular_spline.pdf"><img loading="lazy" src="drawings/SW-100_03_circular_spline.png" alt="Circular spline drawing"></a>
   </div>
   <p>Third-angle projection, sections, balloons, parts list and tooth data. Click a sheet for the PDF.</p>
 </section>

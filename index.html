@@ -5,6 +5,11 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Engineering demos · 工程作品集</title>
 <link rel="stylesheet" href="style.css">
+<meta property="og:title" content="Engineering demos">
+<meta property="og:description" content="Interactive 3D models, robotics and control simulations you can run in the browser.">
+<meta property="og:image" content="https://0smallcat0.github.io/mechanical-design-demos/og.jpg">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" href="favicon.svg">
 </head>
 <body>
 <header>
@@ -14,14 +19,14 @@
 <main>
   <div class="cards">
   <a class="card" href="cd11-cycloid-reducer/">
-    <img src="cd11-cycloid-reducer/renders/render_open.png" alt="CD-11 cycloidal reducer with front cover removed">
+    <img src="cd11-cycloid-reducer/renders/card.jpg" alt="CD-11 cycloidal reducer with front cover removed">
     <h2>CD-11 cycloidal reducer · 擺線減速機</h2>
     <p>11:1 single stage. STEP, drawings, pin-force and bearing-life analysis, renders, interactive teardown, a 30-second product film and a 41-second tour.<br><b>Try:</b> press EXPLODE to pull it apart, drag to turn it.</p>
   </a>
   <a class="card" href="harmonic-drive/">
-    <img src="harmonic-drive/media/render_section.jpg" alt="Section view of the SW-100 strain wave gear">
+    <img src="harmonic-drive/media/card.jpg" alt="Section view of the SW-100 strain wave gear">
     <h2>SW-100 strain wave gear · 諧波減速機</h2>
-    <p>100:1 in one stage. STEP, drawings, tooth-clearance and flexspline fatigue checks, renders, interactive teardown, a 30-second product film and a 34-second tour.<br><b>Try:</b> press EXPLODE, then watch the flexspline flex.</p>
+    <p>The robot-joint gearbox: a flexing toothed cup gives 100:1 in one stage.<br><b>Try:</b> press EXPLODE.</p>
   </a>
   <a class="card" href="walking-pick-robot/">
     <img src="walking-pick-robot/media/render-hero.jpg" alt="Studio render of the eight-legged pick-up robot">
@@ -32,24 +37,24 @@
   <h2 class="group">Robotics, control and 3D printing · 機器人、控制與 3D 列印</h2>
   <div class="cards">
   <a class="card" href="robot-arm-planning/">
-    <img src="robot-arm-planning/media/hero.png" alt="6-DOF arm planning a path over a wall">
+    <img src="robot-arm-planning/media/card.jpg" alt="6-DOF arm planning a path over a wall">
     <h2>6-DOF arm: IK and motion planning · 六軸手臂逆運動學與路徑規劃</h2>
-    <p>Inverse kinematics (damped least squares) and RRT-Connect planning around obstacles, with smooth trajectories and live joint plots. Tested on 1,000 random poses, worst error 0.01 mm.<br><b>Try:</b> drag the target, then press Plan to target.</p>
+    <p>The arm finds its own collision-free path over a wall.<br><b>Try:</b> drag the target, then press Plan.</p>
   </a>
   <a class="card" href="inverted-pendulum-control/">
-    <img src="inverted-pendulum-control/media/live-push.png" alt="Three inverted pendulums balanced by PID, LQR and RL">
-    <h2>Inverted pendulum: PID vs LQR vs RL · 倒單擺控制比較</h2>
-    <p>Three controllers balance the same nonlinear cart-pole side by side, with a scoreboard from a 50-run robustness sweep.<br><b>Try:</b> click a cart to push it, or make the pole 3× heavier.</p>
+    <img src="inverted-pendulum-control/media/card.jpg" alt="Three inverted pendulums balanced by PD, LQR and RL">
+    <h2>Inverted pendulum: PD vs LQR vs RL · 倒單擺控制比較</h2>
+    <p>Three controllers balance the same pole; hard cases show where each one fails.<br><b>Try:</b> press Hard case.</p>
   </a>
   <a class="card" href="mobile-robot-localization/">
-    <img src="mobile-robot-localization/media/poster.jpg" alt="Warehouse robot localizing with lidar and a particle filter">
+    <img src="mobile-robot-localization/media/card.jpg" alt="Warehouse robot localizing with lidar and a particle filter">
     <h2>Warehouse robot: localization and planning · 倉儲機器人定位與路徑規劃</h2>
-    <p>Particle-filter localization from simulated lidar, A* planning and pure-pursuit driving. Tracks within about 5 cm while odometry alone drifts metres.<br><b>Try:</b> Kidnap robot, or drop a box in its path.</p>
+    <p>The robot works out where it is from its laser scans, then drives itself to the goal.<br><b>Try:</b> Kidnap robot.</p>
   </a>
   <a class="card" href="printable-stand/">
     <img src="printable-stand/media/card.jpg" alt="Orange 3D-printed folding phone stand">
     <h2>Print-in-place folding stand · 可列印折疊支架</h2>
-    <p>Set the device size and angle in the browser; the model, printability checks and print estimate update live, and the STL downloads straight to your printer.<br><b>Try:</b> open the configurator and press Download STL.</p>
+    <p>Type in your phone size; get a checked, ready-to-print STL.<br><b>Try:</b> Download STL.</p>
   </a>
   </div>
 </main>

@@ -97,7 +97,13 @@ export function usePose(M, F, R, d, openDeg = d.psi, withDevice = false) {
   const res = { z0, F: fo.translate([0, 0, -z0]), R: place(R.rotate([0, 0, -openDeg])).translate([0, 0, -z0]) };
   if (withDevice) {
     const h = deviceHeight(d);
-    const dev = M.Manifold.cube([h, d.devT, d.devW]).translate([d.LF - d.tl - h, d.rk + 0.3, d.W / 2 - d.devW / 2]);
+    // rounded-rectangle phone/tablet; the screen is a thin inset plate on its viewer-facing (+y) face
+    const rr = (w, hh, r, t) => { const m = M.CrossSection.square([w - 2 * r, hh - 2 * r], true).offset(r, 'Round', 2, 24).extrude(t).rotate([90, 0, 0]); return m; };
+    const at = (m, x0, y0, z0_) => { const b = m.boundingBox(); return m.translate([x0 - b.min[0], y0 - b.min[1], z0_ - b.min[2]]); };
+    const x0 = d.LF - d.tl - h, y0 = d.rk + 0.3, zz = d.W / 2 - d.devW / 2, rad = Math.min(7, d.devW * 0.1);
+    const dev = at(rr(h, d.devW, rad, d.devT), x0, y0, zz);
+    const scr = at(rr(h - 3, d.devW - 3, Math.max(rad - 1.5, 1), 0.3), x0 + 1.5, y0 + d.devT, zz + 1.5);
+    res.screen = place(scr).translate([0, 0, -z0]);
     res.device = place(dev).translate([0, 0, -z0]);
   }
   return res;
