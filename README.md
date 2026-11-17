@@ -111,7 +111,7 @@ The pick-up robot's electronics, wired as in its wiring plan, every board genera
 
 ## Web 3D example · 網頁互動 3D 範例
 
-Another interactive 3D page, in its own project: [Interactive 3D room with real products](https://0smallcat0.github.io/interactive-3d-room/) (drag, rotate and open furniture in the browser).
+Another interactive 3D page, in its own project: [Interactive 3D room: arrange furniture and walk through](https://0smallcat0.github.io/interactive-3d-room/) (drag, rotate and open furniture in the browser).
 
 ---
 
