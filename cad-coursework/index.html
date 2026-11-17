@@ -25,7 +25,9 @@
 .hint { position: absolute; left: 12px; bottom: 10px; font-size: 13px; color: #6e6e73; }
 .cap h2 { margin: 8px 0 4px; }
 .cap p { margin: 0 0 16px; color: var(--muted); }
-.picks { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; margin: 24px 0 64px; }
+.picks { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 12px; margin: 24px 0 32px; }
+.picks:last-child { margin-bottom: 64px; }
+.more { font-size: 18px; margin: 8px 0 0; }
 .pick { font: inherit; text-align: left; padding: 8px; border: 1px solid var(--line); border-radius: 12px; background: none; color: inherit; cursor: pointer; }
 .pick[aria-pressed="true"] { border-color: var(--accent); }
 .pick img { border-radius: 8px; }
@@ -56,6 +58,43 @@
       <img src="media/phone.jpg" alt="Smartphone body" width="480" height="360"><span>Smartphone body · 手機</span></button>
     <button class="pick" data-id="crankshaft" data-title="Crankshaft · 曲柄軸" data-text="The engine part that turns the pistons&#39; up-and-down motion into rotation.">
       <img src="media/crankshaft.jpg" alt="Crankshaft" width="480" height="360"><span>Crankshaft · 曲柄軸</span></button>
+  </div>
+  <h2 class="more">More parts from the class · 其他零件</h2>
+  <div class="picks">
+    <button class="pick" data-id="propeller" data-title="Propeller · 螺旋槳" data-text="Two twisted blades that push air as they spin.">
+      <img src="media/propeller.jpg" alt="Propeller" width="480" height="360" loading="lazy"><span>Propeller · 螺旋槳</span></button>
+    <button class="pick" data-id="hitch-ball" data-title="Tow hitch ball · 拖車掛勾球" data-text="Slides into the hitch on the back of a car; the trailer hooks onto the ball.">
+      <img src="media/hitch-ball.jpg" alt="Tow hitch ball" width="480" height="360" loading="lazy"><span>Tow hitch ball · 拖車掛勾球</span></button>
+    <button class="pick" data-id="eye-bolt" data-title="Eye bolt · 吊環螺栓" data-text="A rod bent into a loop for hooking on a rope or chain.">
+      <img src="media/eye-bolt.jpg" alt="Eye bolt" width="480" height="360" loading="lazy"><span>Eye bolt · 吊環螺栓</span></button>
+    <button class="pick" data-id="flange" data-title="Pipe flange · 法蘭" data-text="A ring that bolts two pipe ends together through its four holes.">
+      <img src="media/flange.jpg" alt="Pipe flange" width="480" height="360" loading="lazy"><span>Pipe flange · 法蘭</span></button>
+    <button class="pick" data-id="hex-bolt" data-title="Hex bolt · 螺絲" data-text="A bolt with a six-sided head for a wrench.">
+      <img src="media/hex-bolt.jpg" alt="Hex bolt" width="480" height="360" loading="lazy"><span>Hex bolt · 螺絲</span></button>
+    <button class="pick" data-id="pillow-block" data-title="Pillow block · 連座軸承" data-text="Holds a turning shaft and bolts it down to a base.">
+      <img src="media/pillow-block.jpg" alt="Pillow block" width="480" height="360" loading="lazy"><span>Pillow block · 連座軸承</span></button>
+    <button class="pick" data-id="keyed-shaft" data-title="Keyed shaft · 鍵軸" data-text="A long shaft with a slot for the key that locks a gear or pulley onto it.">
+      <img src="media/keyed-shaft.jpg" alt="Keyed shaft" width="480" height="360" loading="lazy"><span>Keyed shaft · 鍵軸</span></button>
+    <button class="pick" data-id="shaft-coupling" data-title="Shaft coupling · 軸聯結器" data-text="Joins the ends of two shafts so they turn together.">
+      <img src="media/shaft-coupling.jpg" alt="Shaft coupling" width="480" height="360" loading="lazy"><span>Shaft coupling · 軸聯結器</span></button>
+    <button class="pick" data-id="bushing" data-title="Bushing · 襯套" data-text="A stepped sleeve that lines a hole so a shaft can turn inside it.">
+      <img src="media/bushing.jpg" alt="Bushing" width="480" height="360" loading="lazy"><span>Bushing · 襯套</span></button>
+    <button class="pick" data-id="electronics-cover" data-title="Electronics cover · 電子零件蓋板" data-text="A sheet-metal lid with a grid of vent holes.">
+      <img src="media/electronics-cover.jpg" alt="Electronics cover" width="480" height="360" loading="lazy"><span>Electronics cover · 電子零件蓋板</span></button>
+    <button class="pick" data-id="muffler-clamp" data-title="Muffler clamp · 滅音器夾" data-text="A sheet-metal clip that holds an exhaust pipe in place.">
+      <img src="media/muffler-clamp.jpg" alt="Muffler clamp" width="480" height="360" loading="lazy"><span>Muffler clamp · 滅音器夾</span></button>
+    <button class="pick" data-id="sheet-metal-part" data-title="Sheet-metal bracket · 鈑金零件" data-text="Bent into shape from a single flat sheet.">
+      <img src="media/sheet-metal-part.jpg" alt="Sheet-metal bracket" width="480" height="360" loading="lazy"><span>Sheet-metal bracket · 鈑金零件</span></button>
+    <button class="pick" data-id="locating-pin" data-title="Locating pin · 定位銷" data-text="A bent pin that drops into a hole to hold two parts in line.">
+      <img src="media/locating-pin.jpg" alt="Locating pin" width="480" height="360" loading="lazy"><span>Locating pin · 定位銷</span></button>
+    <button class="pick" data-id="mirror-bracket" data-title="Mirror bracket · 鏡子支架" data-text="An angled support block with a slot cut through the top.">
+      <img src="media/mirror-bracket.jpg" alt="Mirror bracket" width="480" height="360" loading="lazy"><span>Mirror bracket · 鏡子支架</span></button>
+    <button class="pick" data-id="frame-bracket" data-title="Frame bracket · 鏡框支架" data-text="An angled block with a slot on top and a window cut through the slope.">
+      <img src="media/frame-bracket.jpg" alt="Frame bracket" width="480" height="360" loading="lazy"><span>Frame bracket · 鏡框支架</span></button>
+    <button class="pick" data-id="angle-iron" data-title="Angle iron · 角鋼" data-text="An L-shaped steel bar, 1.8 m long.">
+      <img src="media/angle-iron.jpg" alt="Angle iron" width="480" height="360" loading="lazy"><span>Angle iron · 角鋼</span></button>
+    <button class="pick" data-id="drilled-block" data-title="Drilled block · 方塊" data-text="A class exercise in drawing close-up detail views of small features.">
+      <img src="media/drilled-block.jpg" alt="Drilled block" width="480" height="360" loading="lazy"><span>Drilled block · 方塊</span></button>
   </div>
 </main>
 <script src="js/app.js"></script>
