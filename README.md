@@ -68,7 +68,7 @@ A phone or tablet stand that prints in one piece with a working hinge. Set the d
 
 **▶ [Open the page · 打開頁面](https://0smallcat0.github.io/mechanical-design-demos/cad-coursework/)**
 
-21 parts I modeled in SolidWorks for Mechanical Drawing, led by a coffee mug, a spur gear, a smartphone body and a crankshaft, plus a propeller, a tow hitch ball, a flange, bolts, shafts, a bearing block and sheet-metal parts. Each has a turntable film and a 3D model you can turn, converted straight from the part file.
+20 parts I modeled in SolidWorks for Mechanical Drawing, led by a coffee mug, a spur gear, a smartphone body and a crankshaft, plus a propeller, a tow hitch ball, a flange, bolts, shafts, a bearing block and sheet-metal parts. Each has a turntable film and a 3D model you can turn, converted straight from the part file.
 
 機械畫課用 SolidWorks 畫的零件，每件有轉台影片與可旋轉的 3D 模型。
 
