@@ -62,6 +62,18 @@ A phone or tablet stand that prints in one piece with a working hinge. Set the d
 
 ---
 
+## SolidWorks coursework · 機械畫作業
+
+[![A coffee mug, spur gear, smartphone body and crankshaft modeled in SolidWorks](cad-coursework/media/card.jpg)](https://0smallcat0.github.io/mechanical-design-demos/cad-coursework/)
+
+**▶ [Open the page · 打開頁面](https://0smallcat0.github.io/mechanical-design-demos/cad-coursework/)**
+
+Parts I modeled in SolidWorks for Mechanical Drawing: a coffee mug, a spur gear, a smartphone body and a crankshaft. Each has a turntable film and a 3D model you can turn, converted straight from the part file.
+
+機械畫課用 SolidWorks 畫的零件，每件有轉台影片與可旋轉的 3D 模型。
+
+---
+
 ## Eight-legged pick-up robot + EV3 transport robot · 八足取物機器人＋EV3 運輸機器人
 
 [![Studio render of the eight-legged pick-up robot](walking-pick-robot/media/render-hero.jpg)](https://0smallcat0.github.io/mechanical-design-demos/walking-pick-robot/live.html)

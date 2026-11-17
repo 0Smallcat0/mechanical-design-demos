@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SolidWorks coursework — interactive 3D · 機械畫作業</title>
+<meta name="description" content="Parts I modeled in SolidWorks for Mechanical Drawing, viewable in 3D in the browser.">
+<meta property="og:type" content="website">
+<meta property="og:title" content="SolidWorks coursework">
+<meta property="og:description" content="Parts I modeled in SolidWorks for Mechanical Drawing, in 3D in the browser.">
+<meta property="og:image" content="https://0smallcat0.github.io/mechanical-design-demos/cad-coursework/media/card.jpg">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" href="../favicon.svg">
+<link rel="stylesheet" href="../style.css">
+<style>
+.stage { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+@media (max-width: 760px) { .stage { grid-template-columns: 1fr; } }
+#film { width: 100%; aspect-ratio: 16 / 9; object-fit: cover; border-radius: 12px; background: #c8cacd; height: 100%; }
+#view { position: relative; aspect-ratio: 16 / 9; border-radius: 12px; overflow: hidden; background: #eeeef0; touch-action: none; }
+#view canvas { display: block; width: 100%; height: 100%; }
+#view.loading::after { content: "Loading…"; position: absolute; inset: auto 0 16px; text-align: center; color: #6e6e73; }
+.tools { position: absolute; top: 12px; right: 12px; display: flex; gap: 8px; }
+.tools button { font: inherit; font-size: 14px; padding: 6px 12px; border-radius: 999px; border: 1px solid #c7c7cc; background: #fff; color: #1d1d1f; cursor: pointer; }
+.tools button[aria-pressed="false"] { opacity: .6; }
+.hint { position: absolute; left: 12px; bottom: 10px; font-size: 13px; color: #6e6e73; }
+.cap h2 { margin: 8px 0 4px; }
+.cap p { margin: 0 0 16px; color: var(--muted); }
+.picks { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; margin: 24px 0 64px; }
+.pick { font: inherit; text-align: left; padding: 8px; border: 1px solid var(--line); border-radius: 12px; background: none; color: inherit; cursor: pointer; }
+.pick[aria-pressed="true"] { border-color: var(--accent); }
+.pick img { border-radius: 8px; }
+.pick span { display: block; margin-top: 6px; font-size: 15px; }
+</style>
+</head>
+<body>
+<header>
+  <a href="../">&larr; All demos · 所有作品</a>
+  <h1>SolidWorks coursework · 機械畫作業</h1>
+  <p class="lede">Parts I modeled for Mechanical Drawing, shown straight from the SolidWorks part files. <span lang="zh">機械畫課用 SolidWorks 畫的零件。</span></p>
+</header>
+<main>
+  <div class="cap"><h2 id="cap-title"></h2><p id="cap-text"></p></div>
+  <div class="stage">
+  <video id="film" autoplay muted loop playsinline preload="auto" aria-label="Turntable film of the selected part"></video>
+  <div id="view">
+    <div class="tools"><button id="edges" aria-pressed="true">Edges</button><button id="reset">Reset view</button></div>
+    <div class="hint">Drag to turn · scroll or pinch to zoom</div>
+  </div>
+  </div>
+  <div class="picks">
+    <button class="pick" data-id="mug" data-title="Coffee mug · 馬克杯" data-text="Hollow body with a handle curved to fit a hand.">
+      <img src="media/mug.jpg" alt="Coffee mug" width="480" height="360"><span>Coffee mug · 馬克杯</span></button>
+    <button class="pick" data-id="spur-gear" data-title="Spur gear · 齒輪" data-text="The toothed wheel that passes turning motion from one shaft to another.">
+      <img src="media/spur-gear.jpg" alt="Spur gear" width="480" height="360"><span>Spur gear · 齒輪</span></button>
+    <button class="pick" data-id="phone" data-title="Smartphone body · 手機" data-text="Rounded corners and a raised camera bump. Same volume as the instructor&#39;s model.">
+      <img src="media/phone.jpg" alt="Smartphone body" width="480" height="360"><span>Smartphone body · 手機</span></button>
+    <button class="pick" data-id="crankshaft" data-title="Crankshaft · 曲柄軸" data-text="The engine part that turns the pistons&#39; up-and-down motion into rotation.">
+      <img src="media/crankshaft.jpg" alt="Crankshaft" width="480" height="360"><span>Crankshaft · 曲柄軸</span></button>
+  </div>
+</main>
+<script src="js/app.js"></script>
+</body>
+</html>
