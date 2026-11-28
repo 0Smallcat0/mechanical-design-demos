@@ -233,10 +233,16 @@ document.getElementById('fold').onclick = (ev) => { folding = !folding; foldT = 
 function resize() { const r = canvas.parentElement.getBoundingClientRect(); renderer.setSize(r.width, r.height, false); camera.aspect = r.width / r.height; camera.updateProjectionMatrix(); }
 addEventListener('resize', resize); resize();
 let last = performance.now();
+const panBox = new THREE.Box3(), panSz = new THREE.Vector3(), panTo = new THREE.Vector3();
 renderer.setAnimationLoop((now) => {
   const dt = (now - last) / 1000; last = now;
   if (folding) { foldT += dt * 1.6; setFold(); }
-  controls.update(); renderer.render(scene, camera);
+  controls.update();
+  // right-drag / two-finger pan stops at the model: without this the stand can be dragged out of view with no way back
+  panBox.setFromObject(group);
+  if (!panBox.isEmpty()) { panBox.expandByScalar(panBox.getSize(panSz).length() * 0.25); panBox.clampPoint(controls.target, panTo); } else panTo.copy(controls.target);
+  if (!panTo.equals(controls.target)) { panSz.subVectors(panTo, controls.target); controls.target.copy(panTo); camera.position.add(panSz); }
+  renderer.render(scene, camera);
 });
 await rebuild();
 </script>
