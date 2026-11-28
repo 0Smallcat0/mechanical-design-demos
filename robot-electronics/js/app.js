@@ -632,7 +632,12 @@ function loop() {
     camera.position.lerpVectors(fly.from[0], fly.to[0], e); controls.target.lerpVectors(fly.from[1], fly.to[1], e);
     if (k === 1) fly = null;
   }
-  if (!tour) controls.update(); else camera.lookAt(controls.target);
+  if (!tour) {
+    controls.update();
+    // keep right-drag / two-finger pan from carrying the model out of view: stop at the edge of the cutting mat (560 x 380 mm, centre -60, 30)
+    const t = controls.target, cx = Math.max(-340, Math.min(220, t.x)), cy = Math.max(-20, Math.min(150, t.y)), cz = Math.max(-160, Math.min(220, t.z));
+    if (cx !== t.x || cy !== t.y || cz !== t.z) { const d = new THREE.Vector3(cx - t.x, cy - t.y, cz - t.z); t.add(d); camera.position.add(d); }
+  } else camera.lookAt(controls.target);
   renderer.render(scene, camera);
 
   // labels
